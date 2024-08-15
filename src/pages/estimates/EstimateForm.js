@@ -2,9 +2,25 @@ import ReactDOM from 'react-dom'
 import { useState, useEffect, useRef } from 'react'
 // ** MUI Imports
 import {
-  Divider, Card,Grid, Button, TextField, CardHeader, CardContent, Autocomplete,
-  FormControl, Box, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper } from '@mui/material'
+  Divider,
+  Card,
+  Grid,
+  Button,
+  TextField,
+  CardHeader,
+  CardContent,
+  Autocomplete,
+  FormControl,
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper
+} from '@mui/material'
 
 //Componentes (Inputs)
 import { QuantityInput, RateInput, DiscountInput, TaxInput } from 'src/components/inputs/tableInputs'
@@ -12,17 +28,26 @@ import { ProductInput } from 'src/components/inputs/ProductInput'
 //Estados Globales
 import { useForm, FormState } from 'react-hook-form'
 import { useEstimateState } from '../../contexts/estimateState'
-import tableState from 'src/contexts/tableState'
+import tableState from 'src/contexts/rowsState'
 // Import API
-import { createEstimate } from '../../api/clients.api'
-import { getClients } from 'src/api/clients.api'
+import { createEstimate } from '../../api/patients.api'
+import { getClients } from 'src/api/patients.api'
 import { getProducts } from 'src/api/products.api'
+import useRowsState from 'src/contexts/rowsState'
 //Funciones
-import { createData } from 'src/components/functions/createData'
-import { newRow } from 'src/components/functions/newRow'
-
 
 const EstimateForm = () => {
+
+  const {inputValues, setInputValues, addRow, count, setCount, selectedValues, setSelectedValues} = useRowsState()
+
+  function handleRemoveInput(index) {
+    const values = [...inputValues]
+    values.splice(index, 1)
+    setInputValues(values)
+  }
+
+
+
 
   //Hook Form
   const {
@@ -32,14 +57,20 @@ const EstimateForm = () => {
   } = useForm()
 
   // Estados Globales
-  const {client, setClient, clients, setClients,
-    products, setProducts, descriptions, setDescriptions,
-    prefix, setPrefix, date, setDate, estimateNumber,
-    setEstimateNumber, rate, setRate, quantity, setQuantity,
-    total, setTotal, subtotal, setSubtotal, shipping, setShipping,
-    seller, setSeller} = useEstimateState()
-  const {rows, setRows,
-        addRow, removeRow} = tableState()
+  const {
+    client,
+    setClient,
+    clients,
+    setClients,
+    descriptions,
+    setDescriptions,
+    prefix,
+    setPrefix,
+    date,
+    setDate,
+    estimateNumber,
+    selectedProd
+  } = useEstimateState()
 
   //Fetch de Clients
   useEffect(() => {
@@ -52,6 +83,16 @@ const EstimateForm = () => {
 
   return (
     <Card>
+      {inputValues.map((row, index) => (
+  <div key={index}>
+    <p>{row.product}</p>
+  </div>
+))}
+      {selectedValues.map((value, index) => (
+  <div key={index}>
+    <p>{value.product}</p>
+  </div>
+))}
       <CardHeader sx={{ paddingBottom: 20 }} title='Crear Nueva Cotización' />
       <CardContent>
         <Grid
@@ -137,46 +178,42 @@ const EstimateForm = () => {
                 </FormControl>
               </Grid>
               <TableContainer sx={{ height: 500 }} component={Paper}>
-                <Table sx={styles.table} aria-label='simple table'>
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: '#EEEEEE' }}>
-                      <TableCell sx={styles.cellHead} width={'1%'}>
-                        #
-                      </TableCell>
-                      <TableCell sx={styles.cellHead}>Detalles del Articulo</TableCell>
-                      <TableCell sx={styles.cellHead} width={'10%'}>
-                        Cantidad
-                      </TableCell>
-                      <TableCell sx={styles.cellHead}>Tarifa</TableCell>
-                      <TableCell sx={styles.cellHead}>Descuento</TableCell>
-                      <TableCell>Impuesto</TableCell>
-                      <TableCell>Importe</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows.map((row, index) => (
-                      <TableRow key={index}>
-                        <TableCell sx={styles.cell}>{index + 1}</TableCell>
-                        <TableCell sx={styles.cell}>
-                          <ProductInput />
-                        </TableCell>
-                        <TableCell sx={styles.cell}>
-                          <QuantityInput />
-                        </TableCell>
-                        <TableCell sx={styles.cell}>
-                          <RateInput />
-                        </TableCell>
-                        <TableCell sx={styles.cell}>
-                          <DiscountInput />
-                        </TableCell>
-                        <TableCell sx={styles.cell}>
-                          <TaxInput />
-                        </TableCell>
-                        <TableCell sx={styles.cell}>{row.product.price}</TableCell>
-                      </TableRow>
+                <table style={styles.table} aria-label='simple table'>
+                  <thead>
+                    <tr style={{ backgroundColor: '#EEEEEE' }}>
+                      <th style={styles.cellHead}>#</th>
+                      <th style={styles.cellHead}>Detalles del Articulo</th>
+                      <th style={styles.cellHead}>Cantidad</th>
+                      <th style={styles.cellHead}>Tarifa</th>
+                      <th style={styles.cellHead}>Descuento</th>
+                      <th style={styles.cellHead}>Impuesto</th>
+                      <th style={styles.cellHead}>Importe</th>
+                    </tr>
+                  </thead>
+                  <tbody id='newlink'>
+                    {inputValues.map((row, index) => (
+                       <tr key={index}>
+                       <td style={styles.cell}>{index + 1}</td>
+                       <td style={styles.cell}>
+                         <ProductInput value={row.product} index={index} onChange={value => handleInputChange(index, 'product', value)} values={inputValues} setValues={setInputValues}  />
+                       </td>
+                       <td style={styles.cell}>
+                         <QuantityInput value={row.quantity} index={index} onChange={value => handleInputChange(index, 'quantity', value)} />
+                       </td>
+                       <td style={styles.cell}>
+                         <RateInput value={row.rate} index={index} onChange={value => handleInputChange(index, 'rate', value)} />
+                       </td>
+                       <td style={styles.cell}>
+                         <DiscountInput value={row.discount} index={index} onChange={value => handleInputChange(index, 'discount', value)} />
+                       </td>
+                       <td style={styles.cell}>
+                         <TaxInput value={row.tax} index={index} onChange={value => handleInputChange(index, 'tax', value)} />
+                       </td>
+                       <td style={styles.cell}>0.00</td>
+                     </tr>
                     ))}
-                  </TableBody>
-                </Table>
+                  </tbody>
+                </table>
               </TableContainer>
               <Button variant='contained' color='primary'>
                 Guardar
@@ -184,18 +221,24 @@ const EstimateForm = () => {
             </Grid>
           </Grid>
         </form>
-        <Button onClick={newRow}>Agregar Producto</Button>
+        <Button onClick={addRow}>Agregar Producto</Button>
       </CardContent>
     </Card>
   )
 }
+
 const styles = {
   cellHead: {
     border: 'solid 1px #e0e0e0',
     borderLeftWidth: 0,
     borderRightWidth: 1,
     borderTopWidth: 0,
-    borderBottomWidth: 1
+    borderBottomWidth: 1,
+    height: '3rem'
+  },
+  table: {
+    width: '100%',
+    borderCollapse: 'collapse'
   },
   cell: {
     border: 'solid 1px #E7E7E7',

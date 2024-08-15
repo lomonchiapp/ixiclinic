@@ -1,6 +1,6 @@
 const themeConfig = {
   // ** Layout Configs
-  templateName: 'ixibills' /* App Name */,
+  templateName: 'ixiclinic' /* App Name */,
   mode: 'light' /* light | dark */,
   contentWidth: 'full' /* full | boxed */,
   // ** Routing Configs

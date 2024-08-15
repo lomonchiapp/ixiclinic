@@ -5,30 +5,32 @@ import CubeOutline from 'mdi-material-ui/CubeOutline'
 import HomeOutline from 'mdi-material-ui/HomeOutline'
 import FormatLetterCase from 'mdi-material-ui/FormatLetterCase'
 import CreditCardOutline from 'mdi-material-ui/CreditCardOutline'
-import AccountPlusOutline from 'mdi-material-ui/AccountPlusOutline'
-import AlertCircleOutline from 'mdi-material-ui/AlertCircleOutline'
 import GoogleCirclesExtended from 'mdi-material-ui/GoogleCirclesExtended'
 import InventoryIcon from '@mui/icons-material/Inventory';
 import GroupIcon from '@mui/icons-material/Group';
 import ReceiptOutlinedIcon from '@mui/icons-material/ReceiptOutlined';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import LocalAtmIcon from '@mui/icons-material/LocalAtm';
+import MasksIcon from '@mui/icons-material/Masks';
+import TodayIcon from '@mui/icons-material/Today';
+import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
+import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
+import WidgetsOutlinedIcon from '@mui/icons-material/WidgetsOutlined';
+import MedicationOutlinedIcon from '@mui/icons-material/MedicationOutlined';
+import CogOutline from 'mdi-material-ui/CogOutline'
 
 const navigation = () => {
   return [
     {title: 'Dashboard', icon: HomeOutline, path: '/'},
+    {sectionTitle: 'Centro'},
+    {title: 'Citas', icon: TodayIcon, path: '/appointments'},
+    {title: 'Pacientes',icon: GroupOutlinedIcon, path: '/patients'},
+    {title: 'Expedientes', icon: MedicalInformationIcon, path: '/records'},
+    {title: 'Servicios', icon: WidgetsOutlinedIcon, path: '/services'},
     {title: 'Productos', icon: InventoryIcon, path: '/products'},
-    {sectionTitle: 'Ventas'},
-    {title: 'Clientes',icon: GroupIcon, path: '/clients'},
-    {title: 'Cotizaciones', icon: ReceiptOutlinedIcon, path: '/estimates'},
-    {title: 'Facturas', icon: ReceiptIcon, path: '/invoices'},
-    {title: 'Pagos ', icon: LocalAtmIcon, path: '/payments'},
-    {sectionTitle: 'Compras'},
-    {title: 'Typography', icon: FormatLetterCase, path: '/typography'},
-    {title: 'Icons', path: '/icons', icon: GoogleCirclesExtended},
-    {title: 'Cards', icon: CreditCardOutline, path: '/cards'},
-    {title: 'Tables', icon: Table, path: '/tables'},
-    {icon: CubeOutline, title: 'Form Layouts', path: '/form-layouts'}
+    {title: 'Recetas Medicas', icon: ReceiptOutlinedIcon, path: '/prescriptions'},
+    {sectionTitle: 'Configuración'},
+    {title: 'Doctores', icon: MasksIcon, path: '/doctors'},
+    {title: 'Medicamentos', icon: MedicationOutlinedIcon, path: '/medicines'},
+    {icon: CogOutline, title: 'Configuración', path: '/form-layouts'}
   ]
 }
 

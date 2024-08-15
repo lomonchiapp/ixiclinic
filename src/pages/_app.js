@@ -21,7 +21,7 @@ import 'react-perfect-scrollbar/dist/css/styles.css'
 import '../../styles/globals.css'
 // React router
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import ClientsPage from './clients'
+import PatientsPage from './patients'
 
 
 const clientSideEmotionCache = createEmotionCache()

@@ -53,7 +53,7 @@ const BuyNowButton = () => {
           }
         }}
       >
-        Upgrade To Pro
+        Mejorar Mi Plan
       </Button>
       <Fade in={open} timeout={700}>
         <Box

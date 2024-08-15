@@ -6,11 +6,11 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 //Products List Component
 import { ProductsList } from '../ProductsList';
 
-export const FloatingWindow = () => {
+export const FloatingWindow = ({index, values, setValues, handleChange}) => {
   return (
     <>
     <Box sx={styles.floatingWindow}>
-    <ProductsList />
+    <ProductsList index={index} values={values} setValues={setValues} handleChange={handleChange}/>
     </Box>
     <Box sx={styles.FloatingNewProduct}>
     <Button sx={{width:"100%"}}><AddCircleOutlineIcon sx={{fontSize:20, paddingRight:1}}/>Agregar Nuevo Producto</Button>
