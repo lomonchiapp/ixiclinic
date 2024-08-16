@@ -28,9 +28,6 @@ const columns = [
   { id: 'price', label: 'Monto Generado', minWidth: 170, align: 'right'},
   { id: 'actions', label: 'Acciones', minWidth: 170, align: 'right'}
 ]
-function createData(id, patient, date, amount, actions) {
-  return {id, patient, date, amount, actions }
-}
 
 export const RecordsList = () => {
   // ** States
@@ -51,40 +48,12 @@ export const RecordsList = () => {
     setPage(0)
   }
 
-  // ** UseEffect
-  useEffect(() => {
-    const fetchRecords = async () => {
-      const querySnapshot = await getDocs(collection(database, 'records'))
-      const records = querySnapshot.docs.map(doc => {
-        return { id: doc.id, ...doc.data() }
-      })
-      setRecords(records)
-    }
-    fetchRecords()
-  }, [])
 
   useEffect(() => {
-    const formattedRecords = records.map(record => {
-      const fullName = `${record.patient.firstName} ${record.patient.lastName}`
-      return createData(fullName, record.date, record.price, (
-        <div>
-          <EditIcon
-            color='#535353'
-            sx={{ cursor: 'pointer', marginRight: '0.5rem' }}
-            onClick={() => router.push(`/records/${record.id}`)}
-          />
-          <DeleteIcon
-            color='#535353'
-            sx={{ cursor: 'pointer' }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#f44336'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#535353'}
-            onClick={() => handleClickDelete(record.id)}
-          />
-        </div>
-      ))
-    })
-    setRows(formattedRecords)
-  }, [records])
+    fetchRecords()
+    setRows(records)
+    setLoading(false)
+  }, [])
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>

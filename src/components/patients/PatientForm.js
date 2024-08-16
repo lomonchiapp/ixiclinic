@@ -32,81 +32,26 @@ import { collection, addDoc } from 'firebase/firestore'
 import SkinTypeSelect from 'src/components/inputs/SkinTypeSelect'
 import SkinFormDialog from 'src/components/skinTypes/SkinFormDialog'
 
+// Global State
+import { usePatientStore } from 'src/hooks/globalStates/usePatientStore'
+
 export const PatientForm = () => {
   // ** Router
   const router = useRouter()
-
-  // ** Hook Form
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors }
-  } = useForm()
 
   // ** Local States
   const [dobVisible, setDobVisible] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [advanced, setAdvanced] = useState(false)
   const [isAllergic, setIsAllergic] = useState(false)
-  const [data, setData] = useState({
-    firstName: '',
-    lastName: '',
-    phone: '',
-    dateOfBirth: '',
-    isAllergic: false,
-    allergy: '',
-    usedProducts: '',
-    skinType: '',
-    pastProcedures: '',
-    suggestions: '',
-    notes: '',
-    rnc: '',
-    email: ''
-  })
+  const {patient, setPatient} = usePatientStore()
 
   // ** Handlers
-  const fNameChange = e => setData({ ...data, firstName: e.target.value })
-  const lNameChange = e => setData({ ...data, lastName: e.target.value })
-  const phoneChange = e => setData({ ...data, phone: e.target.value })
-  const dobChange = e => setData({ ...data, dateOfBirth: e.target.value })
-  const allergyChange = e => setData({ ...data, allergy: e.target.value })
-  const usedProductsChange = e => setData({ ...data, usedProducts: e.target.value })
-  const skinTypeChange = e => setData({ ...data, skinType: e.target.value })
-  const pastProceduresChange = e => setData({ ...data, pastProcedures: e.target.value })
-  const suggestionsChange = e => setData({ ...data, suggestions: e.target.value })
-  const notesChange = e => setData({ ...data, notes: e.target.value })
-  const rncChange = e => setData({ ...data, rnc: e.target.value })
-  const emailChange = e => setData({ ...data, email: e.target.value })
+
+
 
   const handleOpenDialog = () => setIsDialogOpen(true)
-  const handleChangeAl = e => setIsAllergic(e.target.checked)
 
-  const validateEmail = email => {
-    const re = /\S+@\S+\.\S+/
-    return re.test(email)
-  }
-
-  const onSubmit = handleSubmit(async data => {
-    try {
-      const docRef = await addDoc(collection(database, 'patients'), data)
-      console.log('Document written with ID: ', docRef.id)
-      router.push('/patients')
-
-    } catch (e) {
-      console.log('Error adding document:', e)
-    }
-  })
-
-  const addAndRecord = async (data) => {
-    try {
-      const docRef = await addDoc(collection(database, 'patients'), data)
-      console.log('Document written with ID: ', docRef.id)
-      router.push('/records/newRecord')
-    } catch (e) {
-      console.log('Error adding document:', e)
-    }
-  }
 
   return (
     <form onSubmit={onSubmit}>
@@ -118,35 +63,29 @@ export const PatientForm = () => {
             <Grid item sx={{ display: 'flex' }}>
               <Grid item>
                 <TextField
-                  {...register('firstName')}
-                  value={data.firstName}
-                  size='small'
-                  onChange={fNameChange}
-                  sx={{ width: '98%', marginRight: 8 }}
-                  label='Nombres'
-                  placeholder='Nombre del Cliente'
-                />
+                  value={patient.firstName}
+                  size="small"
+                  onChange={e => setPatient({...patient, firstName: e.target.value})}
+                  placeholder='Nombre del Paciente'
+                  />
               </Grid>
               <Grid item>
                 <TextField
-                  {...register('lastName')}
-                  value={data.lastName}
-                  size='small'
-                  sx={{ width: '100%' }}
-                  onChange={lNameChange}
-                  label='Apellidos'
-                  placeholder='Apellidos del Cliente'
-                />
+                  value={patient.lastName}
+                  size="small"
+                  onChange={e => setPatient({...patient, lastName: e.target.value})}
+                  placeholder='Apellido del Paciente'
+                  />
               </Grid>
             </Grid>
 
             <Grid item xs={12}>
+
               <TextField
-                {...register('phone')}
                 size='small'
                 sx={{ width: 390, WebkitAppearance: 'none' }}
-                value={data.phone}
-                onChange={phoneChange}
+                value={patient.phone}
+                onChange={e => setPatient({...patient, phone: e.target.value})}
                 type='number'
                 label='No. de Contacto.'
                 placeholder='+1-123-456-8790'
@@ -161,10 +100,10 @@ export const PatientForm = () => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                {...register('dateOfBirth')}
                 type='date'
                 size='large'
-                onChange={dobChange}
+                onChange={e => setPatient({...patient, dateOfBirth: e.target.value})}
+                value={patient.dateOfBirth}
                 sx={{ minWidth: 250, marginRight: 9 }}
                 label='Fecha de nacimiento'
                 InputLabelProps={{
@@ -174,7 +113,7 @@ export const PatientForm = () => {
               <FormControlLabel
                 sx={{ border: 'solid 1px #e0e0e0', paddingRight: 2, borderRadius: 5 }}
                 control={
-                  <Switch {...register('isAllergic')} checked={isAllergic} onChange={handleChangeAl} size='large' />
+                  <Switch checked={isAllergic} onChange={() => setIsAllergic(prevIsAllergic => !prevIsAllergic)} size='large' />
                 }
                 label='Alergico'
               />
@@ -182,7 +121,8 @@ export const PatientForm = () => {
             <Grid item>
               {isAllergic && (
                 <TextField
-                  {...register('allergy')}
+                  onChange={e => setPatient({...patient, allergies: e.target.value})}
+                  value={patient.allergies}
                   sx={{ width: 270 }}
                   size='small'
                   label='Alergias'
@@ -192,7 +132,7 @@ export const PatientForm = () => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                {...register('usedProducts')}
+                value={patient.usedProducts}
                 sx={{ width: 390 }}
                 rows={2}
                 multiline
@@ -217,7 +157,9 @@ export const PatientForm = () => {
             <Grid item xs={12}>
               <TextField
                 {...register('pastProcedures')}
+                onChange={e => setPatient({...patient, pastProcedures: e.target.value})}
                 sx={{ width: 390 }}
+                value={patient.pastProcedures}
                 rows={2}
                 multiline
                 size='small'
@@ -227,7 +169,7 @@ export const PatientForm = () => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                {...register('suggestions')}
+                onChange={e => setPatient({...patient, suggestions: e.target.value})}
                 sx={{ width: 390 }}
                 rows={2}
                 multiline
@@ -240,7 +182,8 @@ export const PatientForm = () => {
               {dobVisible ? (
                 <Box>
                   <TextField
-                    {...register('notes')}
+                    value={patient.notes}
+                    onChange={e => setPatient({...patient, notes: e.target.value})}
                     sx={{ width: 390 }}
                     rows={4}
                     multiline
@@ -289,11 +232,11 @@ export const PatientForm = () => {
                   <Grid container spacing={5} sx={{ paddingBottom: 5 }}>
                     <Grid item xs={12} sm={12} lg={12} xl={12} md={12}>
                       <TextField
-                        {...register('rnc')}
+                        value={patient.cedulaRnc}
                         sx={{ width: 390 }}
                         size='small'
                         label='C&eacute;dula/RNC'
-                        placeholder='Leonard Carter'
+                        placeholder='RNC / Cedula'
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position='start'>
@@ -305,7 +248,7 @@ export const PatientForm = () => {
                     </Grid>
                     <Grid item xs={12} sm={12} lg={12} xl={12} md={12}>
                       <TextField
-                        {...register('email')}
+                      
                         sx={{ width: 390 }}
                         size='small'
                         type='email'

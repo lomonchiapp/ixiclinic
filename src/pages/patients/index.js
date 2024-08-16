@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import {PatientsList} from "../../components/patients/patientsTable";
+import {PatientsTable} from "../../components/patients/patientsTable";
 import Grid from "@mui/material/Grid";
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 
@@ -16,7 +16,7 @@ const PatientsPage = () => {
           <Button startIcon={<ControlPointIcon/>} variant="contained" color="primary" onClick={() => window.location.href = "newPatient"}>Agregar Paciente</Button>
       </Grid>
       </Grid>
-      <PatientsList />
+      <PatientsTable />
       </>
   );
 };

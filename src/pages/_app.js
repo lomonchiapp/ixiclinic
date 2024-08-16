@@ -22,6 +22,8 @@ import '../../styles/globals.css'
 // React router
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import PatientsPage from './patients'
+// Toastify Import
+
 
 
 const clientSideEmotionCache = createEmotionCache()
@@ -66,6 +68,7 @@ const App = props => {
             return (
             <>
             <ThemeComponent settings={settings}>{getLayout(<Component {...pageProps} />)}</ThemeComponent>
+
             </>
             )
           }}

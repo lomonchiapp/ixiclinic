@@ -10,10 +10,19 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
+import IconButton from '@mui/material/IconButton'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 // ** Firestore Imports
-import { database } from 'src/firebase'
-import { collection, getDocs } from 'firebase/firestore'
+import { getPatients } from 'src/hooks/patients/getPatients'
+import { deletePatient } from 'src/hooks/patients/deletePatient'
+
+// ** Global State
+import { useSearchStore } from 'src/hooks/globalStates/useSearchStore'
+import { usePatientStore } from 'src/hooks/globalStates/usePatientStore'
+
+// ** toastify
+import { toast } from 'react-toastify'
 
 const columns = [
   { id: 'name', label: 'Nombre del Paciente', minWidth: 170 },
@@ -22,16 +31,18 @@ const columns = [
   { id: 'nextDate', label: 'Próxima Cita', minWidth: 170, align: 'right' },
   { id: 'nextDue', label: 'Próxima Factura', minWidth: 170, align: 'right' }
 ]
-function createData(name, phone, email, nextDate, nextDue) {
-  return { name, phone, email, nextDate, nextDue }
-}
 
-export const PatientsList = () => {
+export const PatientsTable = () => {
   // ** States
   const [patients, setPatients] = useState([])
-  const [rows, setRows] = useState([])
+  const { selectedPatient, setSelectedPatient } = usePatientStore()
   const [page, setPage] = useState(0)
+  const { searchText } = useSearchStore()
   const [rowsPerPage, setRowsPerPage] = useState(10)
+
+  const filteredPatients = patients.filter(patient => 
+    patient.name.toLowerCase().includes(searchText.toLowerCase())
+  )
 
   // ** Handlers
   const handleChangePage = (event, newPage) => {
@@ -46,21 +57,12 @@ export const PatientsList = () => {
   // ** UseEffect
   useEffect(() => {
     const fetchPatients = async () => {
-      const querySnapshot = await getDocs(collection(database, 'patients'))
-      const patients = querySnapshot.docs.map(doc => {
-        return { id: doc.id, ...doc.data() }
-      })
-      setPatients(patients)
+      const patientsData = await getPatients()
+      setPatients(patientsData)
     }
+
     fetchPatients()
   }, [])
-  useEffect(() => {
-    const formattedPatients = patients.map(patient => {
-      const fullName = `${patient.firstName} ${patient.lastName}`
-      return createData(fullName, patient.phone, patient.email, patient.nextDate, patient.nextDue)
-    })
-    setRows(formattedPatients)
-  }, [patients])
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
@@ -68,7 +70,7 @@ export const PatientsList = () => {
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>
             <TableRow>
-              {columns.map((column, index) => (
+              {columns.map(column => (
                 <TableCell key={column.id} align={column.align} sx={{ minWidth: column.minWidth }}>
                   {column.label}
                 </TableCell>
@@ -76,28 +78,35 @@ export const PatientsList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => {
-              return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.code}>
-                  {columns.map(column => {
-                    const value = row[column.id]
-
-                    return (
-                      <TableCell key={column.id} align={column.align}>
-                        {column.format && typeof value === 'number' ? column.format(value) : value}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              )
-            })}
+            {filteredPatients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(patient => (
+              <TableRow
+                hover
+                onClick={() => setSelectedPatient(patient)}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                key={patient.id}
+                tabIndex={-1}
+              >
+                <TableCell component='th' scope='row'>
+                  {patient.firstName} {patient.lastName}
+                </TableCell>
+                <TableCell align='right'>{patient.phone}</TableCell>
+                <TableCell align='right'>{patient.email}</TableCell>
+                <TableCell align='right'>{patient.nextDate}</TableCell>
+                <TableCell align='right'>{patient.nextDue}</TableCell>
+                <TableCell align='right'>
+                  <IconButton onClick={() => deletePatient(patient.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component='div'
-        count={rows.length}
+        count={patients.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
