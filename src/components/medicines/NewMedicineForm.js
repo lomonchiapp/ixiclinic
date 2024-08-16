@@ -22,8 +22,8 @@ import EmailOutline from 'mdi-material-ui/EmailOutline'
 import { useForm, FormState, Form } from 'react-hook-form'
 import { InputLabel, MenuItem, Typography } from '@mui/material'
 import { useState, useEffect } from 'react'
-import { createPatient } from '../../api/patients.api'
-import { addMedicine } from 'src/api/medicines.api'
+import { newPatient } from 'src/hooks/patients/newPatient'
+import { newMedicine } from 'src/hooks/medicines/newMedicine'
 const NewMedicineForm = ({ open, setOpen, medicine, setMedicine }) => {
 
   const [presentation, setPresentation] = useState('pill')

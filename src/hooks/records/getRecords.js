@@ -1,8 +1,14 @@
 import { database } from 'src/firebase'
-import { collection, getDocs} from 'firebase/firestore'
+import { getDocs, collection } from 'firebase/firestore'
 
 export const getRecords = async () => {
-    recordsCollection = collection(database, 'records')
-    const data = await getDocs(recordsCollection)
-    setRecords(data.docs.map(doc => ({ ...doc.data(), id: doc.id })))
+  try {
+    const recordsCollection = getDocs(collection(database, 'records'))
+    const records = (await recordsCollection).docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+    return records
+  } catch (error) {
+    console.error("Error getting records:", error);
+    // Handle the error appropriately, e.g., return an empty array or throw the error
+    return [];
   }
+}

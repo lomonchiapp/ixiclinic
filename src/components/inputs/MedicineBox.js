@@ -2,8 +2,8 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
-import { getMedicines } from 'src/api/medicines.api'
 import { Typography } from '@mui/material'
+import { getMedicines } from 'src/hooks/medicines/getMedicines'
 
 export function MedicineBox({ isDialogOpen, selectedMedicine, setSelectedMedicine, setPresentation, medicines, setMedicines }) {
 

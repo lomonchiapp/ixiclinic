@@ -1,7 +1,7 @@
 import { Button } from '@mui/material'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import { PrescriptionsList } from './PrescTable'
+import { PrescriptionsList } from 'src/components/prescriptions/PrescriptionsTable'
 import Grid from '@mui/material/Grid'
 import ControlPointIcon from '@mui/icons-material/ControlPoint'
 
@@ -10,6 +10,7 @@ import { useRouter } from 'next/router'
 
 const PrescriptionPage = () => {
   const [open, setOpen] = useState(false)
+  const [newPrescription, setNewPrescription] = useState(false)
   const router = useRouter()
   return (
     <>
@@ -21,13 +22,13 @@ const PrescriptionPage = () => {
             startIcon={<ControlPointIcon />}
             variant='contained'
             color='primary'
-            onClick={() => router.push('/prescriptions/NewPrescription')}
+            onClick={() => setNewPrescription(true)}
           >
             Nueva Receta
           </Button>
         </Grid>
       </Grid>
-      <PrescriptionsList dialogIsOpen={open} />
+      <PrescriptionsTable dialogIsOpen={open} />
     </>
   )
 }

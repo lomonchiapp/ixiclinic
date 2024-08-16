@@ -12,6 +12,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 import IconButton from '@mui/material/IconButton'
 import DeleteIcon from '@mui/icons-material/Delete'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 
 // ** Firestore Imports
 import { getPatients } from 'src/hooks/patients/getPatients'
@@ -23,26 +24,41 @@ import { usePatientStore } from 'src/hooks/globalStates/usePatientStore'
 
 // ** toastify
 import { toast } from 'react-toastify'
+import { Box } from '@mui/material'
+import { Visibility } from '@mui/icons-material'
+import { Edit } from '@mui/icons-material'
+
+import { ViewDialog } from 'src/components/ViewDialog'
+import { PatientDrawer } from 'src/components/patients/PatientDrawer'
+import { EditPatient } from 'src/components/patients/EditPatient'
+import { ViewPatient } from 'src/components/patients/ViewPatient'
 
 const columns = [
   { id: 'name', label: 'Nombre del Paciente', minWidth: 170 },
   { id: 'phone', label: 'No. de Contacto', minWidth: 170, align: 'right' },
   { id: 'email', label: 'E-mail', minWidth: 170, align: 'right' },
   { id: 'nextDate', label: 'Próxima Cita', minWidth: 170, align: 'right' },
-  { id: 'nextDue', label: 'Próxima Factura', minWidth: 170, align: 'right' }
+  { id: 'nextDue', label: 'Próxima Factura', minWidth: 170, align: 'right' },
+  { id: 'actions', label: 'Acciones', maxWidth: 50, align: 'center' }
 ]
 
-export const PatientsTable = () => {
+export const PatientsTable = ({setNewPatient, newPatient}) => {
   // ** States
   const [patients, setPatients] = useState([])
   const { selectedPatient, setSelectedPatient } = usePatientStore()
   const [page, setPage] = useState(0)
   const { searchText } = useSearchStore()
   const [rowsPerPage, setRowsPerPage] = useState(10)
+  //Modes
+  const [editMode, setEditMode] = useState(false)
+  const [viewMode, setViewMode] = useState(false)
 
-  const filteredPatients = patients.filter(patient => 
-    patient.name.toLowerCase().includes(searchText.toLowerCase())
-  )
+  const filteredPatients = patients.filter(patient => {
+    const searchLower = searchText.toLowerCase()
+    const firstNameMatch = patient.firstName.toLowerCase().includes(searchLower)
+    const lastNameMatch = patient.lastName.toLowerCase().includes(searchLower)
+    return firstNameMatch || lastNameMatch
+  })
 
   // ** Handlers
   const handleChangePage = (event, newPage) => {
@@ -54,6 +70,14 @@ export const PatientsTable = () => {
     setPage(0)
   }
 
+  const editPatient = patient => {
+    setSelectedPatient(patient)
+    editMode(true)
+  }
+  const viewPatient = patient => {
+    setSelectedPatient(patient)
+    viewMode(true)
+  }
   // ** UseEffect
   useEffect(() => {
     const fetchPatients = async () => {
@@ -94,9 +118,23 @@ export const PatientsTable = () => {
                 <TableCell align='right'>{patient.nextDate}</TableCell>
                 <TableCell align='right'>{patient.nextDue}</TableCell>
                 <TableCell align='right'>
-                  <IconButton onClick={() => deletePatient(patient.id)}>
-                    <DeleteIcon />
-                  </IconButton>
+                  <Box sx={{display: "flex", justifyContent: "space-between"}}>
+
+                      <Edit />
+                      <PatientDrawer open={editMode}>
+                        <EditPatient patient={selectedPatient} setOpen={setEditMode} />
+                      </PatientDrawer>
+
+
+                      <Visibility />
+                      <ViewDialog open={viewMode}>
+                        <ViewPatient patient={selectedPatient} setOpen={setViewMode} />
+                      </ViewDialog>
+
+
+                      <DeleteIcon />
+
+                  </Box>
                 </TableCell>
               </TableRow>
             ))}

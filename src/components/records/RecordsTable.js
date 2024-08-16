@@ -19,6 +19,7 @@ import EditIcon from '@mui/icons-material/Edit';
 // ** Firestore Imports
 import { database } from 'src/firebase'
 import { collection, getDocs, deleteDoc } from 'firebase/firestore'
+import { getRecords } from 'src/hooks/records/getRecords';
 
 // ** Table Columns
 const columns = [
@@ -50,7 +51,7 @@ export const RecordsList = () => {
 
 
   useEffect(() => {
-    fetchRecords()
+    getRecords()
     setRows(records)
     setLoading(false)
   }, [])

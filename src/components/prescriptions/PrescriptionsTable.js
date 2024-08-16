@@ -31,7 +31,7 @@ function createData(id, patient, medicines, date, actions) {
   return {id, patient, medicines, date, actions }
 }
 
-export function PrescriptionsList({dialogIsOpen, setDialogIsOpen}) {
+export function PrescriptionsTable({dialogIsOpen, setDialogIsOpen}) {
   const [loading, setLoading] = useState(true)
   const [services, setServices] = useState([])
   const [rows, setRows] = useState([])

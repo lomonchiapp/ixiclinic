@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react'
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
@@ -9,6 +10,9 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Menu from 'mdi-material-ui/Menu'
 import Magnify from 'mdi-material-ui/Magnify'
 
+// ** Global State
+import { useSearchStore } from 'src/hooks/globalStates/useSearchStore'
+
 // ** Components
 import ModeToggler from 'src/@core/layouts/components/shared-components/ModeToggler'
 import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'
@@ -17,6 +21,9 @@ import NotificationDropdown from 'src/@core/layouts/components/shared-components
 const AppBarContent = props => {
   // ** Props
   const { hidden, settings, saveSettings, toggleNavVisibility } = props
+  // ** States
+  const [searchFocused, setSearchFocused] = useState(false)
+  const { searchText, setSearchText } = useSearchStore()
 
   // ** Hook
   const hiddenSm = useMediaQuery(theme => theme.breakpoints.down('sm'))
@@ -34,33 +41,22 @@ const AppBarContent = props => {
           </IconButton>
         ) : null}
         <TextField
-          size='small'
-          sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4 } }}
+          size='large'
+          value={searchText}
+          onChange={e => setSearchText(e.target.value)}
+          onBlur={() => setSearchFocused(false)}
+          onFocus={() => setSearchFocused(true)}
+          sx={searchFocused ? styles.focusedInput : styles.input}
           InputProps={{
             startAdornment: (
-              <InputAdornment position='start'>
-                <Magnify fontSize='small' />
+              <InputAdornment onClick={() => setSearchFocused(true)} position='start'>
+                <Magnify fontSize='medium' />
               </InputAdornment>
             )
           }}
         />
       </Box>
       <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
-        {hiddenSm ? null : (
-          <Box
-            component='a'
-            target='_blank'
-            rel='noreferrer'
-            sx={{ mr: 4, display: 'flex' }}
-            href='https://github.com/themeselection/materio-mui-react-nextjs-admin-template-free'
-          >
-            <img
-              height={24}
-              alt='github stars'
-              src='https://img.shields.io/github/stars/themeselection/materio-mui-react-nextjs-admin-template-free?style=social'
-            />
-          </Box>
-        )}
         <ModeToggler settings={settings} saveSettings={saveSettings} />
         <NotificationDropdown />
         <UserDropdown />
@@ -68,5 +64,20 @@ const AppBarContent = props => {
     </Box>
   )
 }
+
+  const styles = {
+    input: {
+      width: 50,
+      maxHeight: 70,
+      transition: 'width 0.3s ease',
+    },
+    focusedInput: {
+      width: 200,
+      maxHeight: 70,
+      backgroundColor: 'white',
+      transition: 'width 0.3s ease',
+    },
+  };
+
 
 export default AppBarContent

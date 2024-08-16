@@ -18,6 +18,8 @@ const initialState = {
 
 export const usePatientStore = create((set) => ({
     patient: initialState,
+    selectedPatient: null,
     setPatient: (patient) => set({patient}),
+    setSelectedPatient: (selectedPatient) => set({selectedPatient}),
     resetPatient: () => set({patient: initialState})
     }))

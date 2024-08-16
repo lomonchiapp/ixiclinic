@@ -1,11 +1,15 @@
+import React, { useState } from 'react';
 import { Button } from "@mui/material";
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {PatientsTable} from "../../components/patients/patientsTable";
 import Grid from "@mui/material/Grid";
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
+import { PatientDrawer } from 'src/components/patients/PatientDrawer';
+import NewPatient from './newPatient';
 
 const PatientsPage = () => {
+  const [newPatient, setNewPatient] = useState(false)
   return (
     <>
     <Grid container spacing={3}>
@@ -13,10 +17,13 @@ const PatientsPage = () => {
        >
           <Typography variant="h6">Lista de Pacientes</Typography>
 
-          <Button startIcon={<ControlPointIcon/>} variant="contained" color="primary" onClick={() => window.location.href = "newPatient"}>Agregar Paciente</Button>
+          <Button startIcon={<ControlPointIcon/>} variant="contained" color="primary" onClick={() => setNewPatient(true)}>Agregar Paciente</Button>
+          <PatientDrawer setOpen={setNewPatient} open={newPatient}>
+            <NewPatient setOpen={setNewPatient} />
+          </PatientDrawer>
       </Grid>
       </Grid>
-      <PatientsTable />
+      <PatientsTable newPatient={newPatient} setNewPatient={setNewPatient} />
       </>
   );
 };

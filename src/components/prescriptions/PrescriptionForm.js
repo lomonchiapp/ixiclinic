@@ -1,16 +1,10 @@
 // ** MUI Imports
-import Divider from '@mui/material/Divider'
-import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import CardHeader from '@mui/material/CardHeader'
-import CardContent from '@mui/material/CardContent'
-import { newPrescription } from 'src/api/prescriptions.api'
+import { newPrescription } from 'src/hooks/prescriptions/newPrescription'
 import { Tab, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
-import { MedicineBox } from 'src/components/inputs/MedicineBox'
 import Select from '@mui/material/Select'
-import { DosageLabel } from 'src/components/inputs/MedicineBox'
 import { PrescPDF } from 'src/components/prescriptions/PrescPDF'
 // ** Icons Imports
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation'
@@ -20,16 +14,24 @@ import { InputLabel, MenuItem, Typography } from '@mui/material'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Autocomplete } from '@mui/material'
-import { getPatients } from 'src/api/patients.api'
-import { getMedicines } from 'src/api/medicines.api'
+// Hooks
+import { getPatients } from 'src/hooks/patients/getPatients'
+import { getMedicines } from 'src/hooks/medicines/getMedicines'
+import { getUnits } from 'src/hooks/getUnits'
+
+//Day Library
 import dayjs from 'dayjs'
+//Components
 import { PatientsSelect } from 'src/components/inputs/PatientsSelect'
 import { PatientFormDialog } from 'src/components/patients/PatientDialog'
 import { MedicineDialog } from 'src/components/medicines/MedicineDialog'
+//Icons
 import Close from 'mdi-material-ui/Close'
+//Inputs
 import { Date } from 'src/components/inputs/Date'
-import { getUnits } from 'src/hooks/getUnits'
+//Global States
 import { usePrescState } from 'src/contexts/prescState'
+//PDF
 import dynamic from "next/dynamic";
 
 const PDFDownloadLink = dynamic(
@@ -42,8 +44,6 @@ export const PrescriptionForm = ({ open, setOpen, patients, date, setDate }) => 
   const {
     patient,
     setPatient,
-    doctor,
-    setDoctor,
     onWeeks,
     medicines,
     setMedicines,
@@ -55,8 +55,6 @@ export const PrescriptionForm = ({ open, setOpen, patients, date, setDate }) => 
     frequencies,
     setDescription,
     setFrequencies,
-    administrations,
-    setAdministrations,
     setOnWeeks
   } = usePrescState()
   // Local states

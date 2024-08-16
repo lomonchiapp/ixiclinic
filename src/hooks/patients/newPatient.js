@@ -1,9 +1,8 @@
 import { useRouter } from 'next/router'
-// Firebase Imports 
+// Firebase Imports
 import { database } from 'src/firebase'
 import { collection, addDoc } from 'firebase/firestore'
 
-const router = useRouter()
 
 export const newPatient = async (patient) => {
   try {
@@ -14,11 +13,10 @@ export const newPatient = async (patient) => {
   }
 }
 
-export const addAndRecord = async (data) => {
+export const addAndRecord = async (patient) => {
   try {
-    const docRef = await addDoc(collection(database, 'patients'), data)
+    const docRef = await addDoc(collection(database, 'patients'), patient)
     console.log('Document written with ID: ', docRef.id)
-    router.push('/records/newRecord')
   } catch (e) {
     console.log('Error adding document:', e)
   }

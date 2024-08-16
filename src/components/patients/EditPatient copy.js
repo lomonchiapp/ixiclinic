@@ -2,7 +2,6 @@
 import { useForm, FormState } from 'react-hook-form'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import InputMask from 'react-input-mask'
 
 // ** MUI Imports
 import Divider from '@mui/material/Divider'
@@ -25,8 +24,9 @@ import EmailOutline from 'mdi-material-ui/EmailOutline'
 import Phone from 'mdi-material-ui/Phone'
 import Close from '@mui/icons-material/Close'
 
-// ** Hooks
-import { newPatient, addAndRecord } from 'src/hooks/patients/newPatient'
+// ** Firestore Imports
+import { database } from 'src/firebase'
+import { collection, addDoc } from 'firebase/firestore'
 
 // ** Custom Components
 import SkinTypeSelect from 'src/components/inputs/SkinTypeSelect'
@@ -35,19 +35,33 @@ import SkinFormDialog from 'src/components/skinTypes/SkinFormDialog'
 // Global State
 import { usePatientStore } from 'src/hooks/globalStates/usePatientStore'
 
-export const PatientForm = () => {
+export const EditPatient = ({setOpen}) => {
+  const {selectedPatient, setSelectedPatient} = usePatientStore()
+  const [patient, setPatient] = useState(selectedPatient)
+
+  useEffect(()=> {
+    setPatient(selectedPatient)
+  }, [selectedPatient])
+
   // ** Router
+  const router = useRouter()
 
   // ** Local States
   const [dobVisible, setDobVisible] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [advanced, setAdvanced] = useState(false)
-  const [isAllergic, setIsAllergic] = useState(false)
-  const { patient, setPatient } = usePatientStore()
 
   // ** Handlers
+  const updatePatient = async () => {
+    const docRef = doc(db, 'patients', patient.id)
+    await updateDoc(docRef, selectedPatient)
+    setOpen(false)
+  }
+
+
 
   const handleOpenDialog = () => setIsDialogOpen(true)
+
 
   return (
     <form>
@@ -60,50 +74,45 @@ export const PatientForm = () => {
               <Grid item>
                 <TextField
                   value={patient.firstName}
-                  size='small'
-                  onChange={e => setPatient({ ...patient, firstName: e.target.value })}
+                  size="small"
+                  onChange={e => setPatient({...patient, firstName: e.target.value})}
                   placeholder='Nombre del Paciente'
-                />
+                  />
               </Grid>
               <Grid item>
                 <TextField
                   value={patient.lastName}
-                  size='small'
-                  onChange={e => setPatient({ ...patient, lastName: e.target.value })}
+                  size="small"
+                  onChange={e => setPatient({...patient, lastName: e.target.value})}
                   placeholder='Apellido del Paciente'
-                />
+                  />
               </Grid>
             </Grid>
 
             <Grid item xs={12}>
-            <InputMask
-                mask="+1-999-999-9999"
+
+              <TextField
+                size='small'
+                sx={{ width: 390, WebkitAppearance: 'none' }}
                 value={patient.phone}
-                onChange={e => setPatient({ ...patient, phone: e.target.value })}
-              >
-                {() => (
-                  <TextField
-                    size='small'
-                    sx={{ width: 390, WebkitAppearance: 'none' }}
-                    type='tel'
-                    label='No. de Contacto.'
-                    placeholder='+1-123-456-8790'
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <Phone />
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                )}
-              </InputMask>
+                onChange={e => setPatient({...patient, phone: e.target.value})}
+                type='number'
+                label='No. de Contacto.'
+                placeholder='+1-123-456-8790'
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position='start'>
+                      <Phone />
+                    </InputAdornment>
+                  )
+                }}
+              />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 type='date'
                 size='large'
-                onChange={e => setPatient({ ...patient, dateOfBirth: e.target.value })}
+                onChange={e => setPatient({...patient, dateOfBirth: e.target.value})}
                 value={patient.dateOfBirth}
                 sx={{ minWidth: 250, marginRight: 9 }}
                 label='Fecha de nacimiento'
@@ -114,11 +123,7 @@ export const PatientForm = () => {
               <FormControlLabel
                 sx={{ border: 'solid 1px #e0e0e0', paddingRight: 2, borderRadius: 5 }}
                 control={
-                  <Switch
-                    checked={isAllergic}
-                    onChange={() => setIsAllergic(prevIsAllergic => !prevIsAllergic)}
-                    size='large'
-                  />
+                  <Switch checked={isAllergic} onChange={() => setIsAllergic(prevIsAllergic => !prevIsAllergic)} size='large' />
                 }
                 label='Alergico'
               />
@@ -126,7 +131,7 @@ export const PatientForm = () => {
             <Grid item>
               {isAllergic && (
                 <TextField
-                  onChange={e => setPatient({ ...patient, allergies: e.target.value })}
+                  onChange={e => setPatient({...patient, allergies: e.target.value})}
                   value={patient.allergies}
                   sx={{ width: 270 }}
                   size='small'
@@ -138,7 +143,6 @@ export const PatientForm = () => {
             <Grid item xs={12}>
               <TextField
                 value={patient.usedProducts}
-                onChange={e => setPatient({ ...patient, usedProducts: e.target.value })}
                 sx={{ width: 390 }}
                 rows={2}
                 multiline
@@ -162,7 +166,8 @@ export const PatientForm = () => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                onChange={e => setPatient({ ...patient, pastProcedures: e.target.value })}
+                {...register('pastProcedures')}
+                onChange={e => setPatient({...patient, pastProcedures: e.target.value})}
                 sx={{ width: 390 }}
                 value={patient.pastProcedures}
                 rows={2}
@@ -174,8 +179,9 @@ export const PatientForm = () => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                onChange={e => setPatient({ ...patient, suggestions: e.target.value })}
+                onChange={e => setPatient({...patient, suggestions: e.target.value})}
                 sx={{ width: 390 }}
+                value={patient.suggestions}
                 rows={2}
                 multiline
                 size='small'
@@ -188,7 +194,7 @@ export const PatientForm = () => {
                 <Box>
                   <TextField
                     value={patient.notes}
-                    onChange={e => setPatient({ ...patient, notes: e.target.value })}
+                    onChange={e => setPatient({...patient, notes: e.target.value})}
                     sx={{ width: 390 }}
                     rows={4}
                     multiline
@@ -253,11 +259,12 @@ export const PatientForm = () => {
                     </Grid>
                     <Grid item xs={12} sm={12} lg={12} xl={12} md={12}>
                       <TextField
+
                         sx={{ width: 390 }}
                         size='small'
                         type='email'
                         label='Email'
-                        placeholder='carterleonard@gmail.com'
+                        placeholder='Correo'
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position='start'>
@@ -270,33 +277,27 @@ export const PatientForm = () => {
                   </Grid>
                 )}
               </Grid>
-
             </Grid>
-
+            <Grid item xs={12}>
+              <Button
+                sx={{ marginRight: 2 }}
+                onClick={updatePatient}
+                type='button'
+                variant='contained'
+                size='large'
+                startIcon={<AddCircleIcon />}
+              >
+                Actualizar
+              </Button>
+              <Button onClick={() => setOpen(false)} type='button' variant='outlined' size='large' startIcon={<AddCircleIcon />}>
+                Volver
+              </Button>
+            </Grid>
           </Grid>
-          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Button
-                  sx={{ marginRight: 2 }}
-                  onClick={() => addAndRecord(patient)}
-                  type='button'
-                  variant='contained'
-                  size='large'
-                  startIcon={<AddCircleIcon />}
-                >
-                  Agregar y Crear Expediente
-                </Button>
-                <Button
-                  onClick={() => newPatient(patient)}
-                  type='button'
-                  variant='outlined'
-                  size='large'
-                  startIcon={<AddCircleIcon />}
-                >
-                  Agregar y Volver a la Lista
-                </Button>
-              </Box>
         </CardContent>
       </Card>
+
     </form>
   )
 }
+
