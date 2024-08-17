@@ -5,8 +5,11 @@ const initialState = {
   doctor:'',
   prodTotal:0,
   servTotal:0,
+  variationsTotal:0,
+  total: 0,
   procedure:'',
   notes:'',
+  servVariations:[],
   problems:[],
   servList:[],
   prodList:[],
@@ -19,7 +22,11 @@ export const useRecordState = create((set) => ({
   procedure:'',
   notes:'',
   servTotal: 0,
+  variationsTotal: 0,
   prodTotal: 0,
+  total: () => {
+    return servTotal + variationsTotal + prodTotal
+  },
   servVariations: [],
   problems:[],
   servList:[],

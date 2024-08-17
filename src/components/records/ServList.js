@@ -42,12 +42,14 @@ export function ServList() {
   return (
     <Grid sx={styles.list}>
       <Typography sx={styles.header}>Servicios / Tratamientos</Typography>
-      <Table>
+      <Box sx={styles.tableContainer}>
+      <Table sx={styles.table}>
         <TableHead>
           <TableRow>
             <TableCell>Nombre</TableCell>
             <TableCell>Especificaciones</TableCell>
             <TableCell>Precio</TableCell>
+            <TableCell></TableCell>
           </TableRow>
         </TableHead>
         {servList.map((serv, index) => (
@@ -61,28 +63,47 @@ export function ServList() {
             </TableCell>
           </TableRow>
         ))}
-        <TableRow>
-          <TableCell></TableCell>
-          <TableCell><Typography sx={styles.totalLabel}>Total:</Typography></TableCell>
-          <TableCell><Typography sx={styles.total}>${servTotal}</Typography></TableCell>
-        </TableRow>
       </Table>
+      </Box>
+
     </Grid>
   )
 }
 
 const styles = {
   list: {
-    minWidth: 500,
-    minHeight: 400,
-
+    minHeight: 300,
+    position: 'relative',
     overflow: 'auto',
-    padding: 5,
+    pt:5,
     marginTop:5,
     border: '1px solid #f0f0f0',
-    boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.1)'
+    boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.1)',
+    flexGrow: 1,
 
   },
+  tableContainer: {
+    overflow: 'auto',
+    height: '100%',
+    width: '100%',
+  },
+  totalRow: {
+    borderTop: '1px solid #f0f0f0',
+    backgroundColor: '#f0f0f0',
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    mt:5,
+    p:3,
+  },
+  table: {
+    mb:5,
+    borderCollapse: 'collapse'
+  },
+
   qty: {
     margin: '0 10px',
     fontWeight: 'bold',
@@ -102,6 +123,7 @@ const styles = {
     color: '#00A99D',
     fontSize: 15,
     fontWeight: '500',
+    p:5,
   },
   qtyIcons: {
     cursor: 'pointer',
