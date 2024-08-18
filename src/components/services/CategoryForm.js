@@ -5,44 +5,30 @@ import { useState } from 'react'
 // ** MUI Imports
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import Dialog from '@mui/material/Dialog'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import DialogTitle from '@mui/material/DialogTitle'
+//Custom Hook
+import { newCategory } from 'src/hooks/services/categories/newCategory'
 
-// ** Firestore Imports
-import { database } from 'src/firebase'
-import { collection, addDoc } from 'firebase/firestore'
-
-
-export function CategoryFormDialog({ open, setOpen }) {
+export function CategoryForm({setOpen}) {
   const [serviceCategory, setServiceCategory] = useState({ name: '', description: '' });
   const [serviceCategories, setServiceCategories] = useState([]);
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const docRef = await addDoc(collection(database, 'serviceCategories'), serviceCategory);
-    console.log('Document written with ID: ', docRef.id);
-    setServiceCategory({ name: '', description: '' });
-    setOpen(false);
-    // Poner notificacion aqui
-
-  };
 
   const handleChange = (event) => {
     setServiceCategory({ ...serviceCategory, [event.target.name]: event.target.value });
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const category = await newCategory(serviceCategory);
+      setServiceCategories([...serviceCategories, category]);
+      setServiceCategory({ name: '', description: '' });
+      setOpen(false)
+    } catch (error) {
+      console.error("Error creating new category: ", error);
+      // Optionally, you can add user notification here
+    }
+  };
   return (
-      <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Registrar nueva categoría de Servicios.</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          Por favor, ingrese el nombre y la descripción de la nueva categoría de servicios.
-        </DialogContentText>
         <form onSubmit={handleSubmit}>
           <TextField
             autoFocus
@@ -70,8 +56,7 @@ export function CategoryFormDialog({ open, setOpen }) {
             onChange={handleChange}
           />
           <Button type='button' onClick={handleSubmit}>Agregar</Button>
+          <Button type='button' onClick={() => setOpen(false)}>Cancelar</Button>
         </form>
-      </DialogContent>
-    </Dialog>
   )
 }

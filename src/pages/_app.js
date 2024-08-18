@@ -23,6 +23,8 @@ import '../../styles/globals.css'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import PatientsPage from './patients'
 // Toastify Import
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 
 
@@ -75,6 +77,17 @@ const App = props => {
         </SettingsConsumer>
       </SettingsProvider>
     </CacheProvider>
+    <ToastContainer
+      position='top-right'
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+    />
     </>
   )
 }

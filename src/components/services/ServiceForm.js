@@ -13,39 +13,43 @@ import { ServiceCategorySelect } from 'src/components/inputs/ServiceCategorySele
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import { Typography } from '@mui/material'
 // ** Firestore Imports
-import {database, FIREBASE_APP} from 'src/firebase'
-import {collection, addDoc} from 'firebase/firestore'
+import { database, FIREBASE_APP } from 'src/firebase'
+import { collection, addDoc } from 'firebase/firestore'
 // ** Custom Components
-import {CategoryFormDialog} from 'src/components/services/CategoryFormDialog'
+import { Backspace } from '@mui/icons-material'
+import { ViewDialog } from '../ViewDialog'
+import { CategoryForm } from './CategoryForm'
+//* new Service */
+import { newService } from 'src/hooks/services/newService'
 
-export const ServiceForm = ({open, setOpen}) => {
-
-  const [openDialog, setOpenDialog] = useState(false)
-  const handleOpenDialog = () => setOpenDialog(true)
-  const handleCloseDialog = () => setOpenDialog(false)
+export const ServiceForm = ({ open, setOpen }) => {
+  const [newCategory, setNewCategory] = useState(false)
   const [service, setService] = useState({
     name: '',
     category: '',
     description: '',
-    price: 0.00,
-    cost: 0.00,
+    price: 0.0,
+    cost: 0.0,
+    duration: 0 // in minutes
   })
   const router = useRouter()
-  const handleServiceCategoryChange = (value) => {
-    setService({ ...service, category: value });
-  };
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleServiceCategoryChange = value => {
+    setService({ ...service, category: value })
+  }
+  const handleSubmit = async event => {
+    event.preventDefault()
     try {
-      const docRef = await addDoc(collection (database, 'services'), service)
-      console.log('Document written with ID: ', docRef.id);
-    } catch (e) {
-      console.error('Error adding document: ', e);
+      const serviceRef = await newService(service)
+      console.log('Service added: ', serviceRef)
+      setOpen(false)
+    } catch (error) {
+      console.error('Error creating new service: ', error)
     }
-  };
-  const handleChange = (event) => {
-    setService({ ...service, [event.target.name]: event.target.value });
-  };
+  }
+
+  const handleChange = event => {
+    setService({ ...service, [event.target.name]: event.target.value })
+  }
 
   return (
     <Card sx={{ minWidth: 400, maxWidth: 400 }}>
@@ -53,7 +57,7 @@ export const ServiceForm = ({open, setOpen}) => {
         <CardHeader title='Agregar Servicio' titleTypographyProps={{ variant: 'h6' }} />
         <Divider />
         <CardContent>
-          <Grid container spacing={2}>
+          <Grid sx={{ gap: 3 }} container spacing={2}>
             <Grid item>
               <TextField
                 size='small'
@@ -69,18 +73,23 @@ export const ServiceForm = ({open, setOpen}) => {
               />
             </Grid>
             <Grid container item>
-              <ServiceCategorySelect serviceCategory={service.category} setServiceCategory={handleServiceCategoryChange} isDialogOpen={openDialog} />
+              <ServiceCategorySelect
+                serviceCategory={service.category}
+                setServiceCategory={handleServiceCategoryChange}
+                isDialogOpen={newCategory}
+              />
               <Button
                 startIcon={<AddCircleIcon fontSize='' />}
-                sx={{ width:40}}
+                sx={{ width: 40 }}
                 variant='outlined'
                 size='large'
-                onClick={handleOpenDialog}
-              >
-              </Button>
-              <CategoryFormDialog open={openDialog} setOpen={setOpenDialog} />
+                onClick={() => setNewCategory(true)}
+              ></Button>
+              <ViewDialog open={newCategory} setOpen={setNewCategory}>
+                <CategoryForm setOpen={setNewCategory}/>
+              </ViewDialog>
             </Grid>
-            <Grid item container>
+            <Grid item container> 
               <TextField
                 size='small'
                 value={service.price}
@@ -91,26 +100,60 @@ export const ServiceForm = ({open, setOpen}) => {
                 sx={{ width: '40%' }}
                 label='Precio'
                 placeholder='Precio del Servicio'
-              /><Typography variant='h6' color='secondary'>DOP.</Typography>
+              />
+              <Typography variant='h6' color='secondary'>
+                DOP.
+              </Typography>
             </Grid>
-            <Grid sx={{marginTop:5}} container item spacing={2}>
-          <Button
-            sx={{ marginRight: 2 }}
-            onClick={handleSubmit}
-            type='submit'
-            variant='contained'
-            size='small'
-            startIcon={<AddCircleIcon />}
-          >
-            Agregar
-          </Button>
-          <Button onClick={() => setOpen(false)} type='button' variant='outlined' size='small' startIcon={<AddCircleIcon />}>
-            Cancelar
-          </Button>
-        </Grid>
+            <Grid item container>
+              <TextField
+                size='small'
+                value={service.duration}
+                type='number'
+                id='duration'
+                name='duration'
+                onChange={handleChange}
+                sx={{ width: '40%' }}
+                label='Duración'
+                placeholder='Duración del Servicio'
+              />
+              <Typography sx={styles.helperText}>en Minutos</Typography>
+            </Grid>
+            <Grid sx={{ marginTop: 5 }} container item spacing={2}>
+              <Button
+                sx={{ marginRight: 2 }}
+                onClick={handleSubmit}
+                type='submit'
+                variant='contained'
+                size='small'
+                startIcon={<AddCircleIcon />}
+              >
+                Agregar
+              </Button>
+              <Button
+                onClick={() => setOpen(false)}
+                type='button'
+                color='secondary'
+                variant='outlined'
+                size='small'
+                startIcon={<Backspace />}
+              >
+                Cancelar
+              </Button>
+            </Grid>
           </Grid>
         </CardContent>
       </form>
     </Card>
   )
+}
+
+const styles = {
+  helperText: {
+    fontSize: 10,
+    color: '#fff',
+    alignSelf: 'center',
+    padding: 2,
+    backgroundColor: '#00A99D'
+  }
 }

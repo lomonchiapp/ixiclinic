@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState,useEffect} from 'react'
 import { Box, FormControl, TextField, Grid, List, Typography, ListItem, Table, TableRow, TableHead, TableCell } from '@mui/material'
 import { useRecordState } from 'src/contexts/recordState'
 
@@ -9,7 +9,7 @@ import Delete from '@mui/icons-material/Delete'
 
 export function ProdList() {
   // ** Global State
-  const { prodList, setProdList, qties, setQties } = useRecordState()
+  const { prodList, setProdList, qties, setQties, setProdTotal, prodTotal } = useRecordState()
 
   // ** Handlers
   const handleAdd = index => {
@@ -34,11 +34,15 @@ export function ProdList() {
     setProdList(newProdList)
   }
 
-  const total = prodList.reduce((acc, prod, index) => {
-    return acc + prod.price * qties[index]
-  }, 0)
 
   const totalQty = qties.reduce((acc, qty) => acc + qty, 0)
+  useEffect(() => {
+    const total = prodList.reduce((acc, prod, index) => {
+      return acc + prod.price * qties[index]
+    }
+    , 0)
+    setProdTotal(total)
+  }, [qties, prodList])
 
   return (
     <Grid sx={styles.list}>
@@ -49,14 +53,17 @@ export function ProdList() {
             <TableCell>Cant</TableCell>
             <TableCell>Producto</TableCell>
             <TableCell>Precio</TableCell>
+            <TableCell></TableCell>
           </TableRow>
         </TableHead>
         {prodList.map((prod, index) => (
           <TableRow key={index}>
-            <TableCell sx={styles.qtyCell}>
+            <TableCell >
+              <Box sx={styles.qtyCell}>
             <RemoveIcon onClick={() => handleSubstract(index)} sx={styles.qtyIcons} />
             <Typography sx={styles.qty}>{qties[index]}</Typography>
             <AddIcon onClick={() => handleAdd(index)} sx={styles.qtyIcons} />
+            </Box>
             </TableCell>
             <TableCell>{prod.name}</TableCell>
             <TableCell>${prod.price}</TableCell>
@@ -65,11 +72,6 @@ export function ProdList() {
             </TableCell>
           </TableRow>
         ))}
-        <TableRow>
-          <TableCell></TableCell>
-          <TableCell><Typography sx={styles.totalLabel}>Total:</Typography></TableCell>
-          <TableCell><Typography sx={styles.total}>${total}</Typography></TableCell>
-        </TableRow>
       </Table>
     </Grid>
   )
@@ -77,7 +79,6 @@ export function ProdList() {
 
 const styles = {
   list: {
-    maxWidth: 400,
     maxHeight: 300,
     overflow: 'auto',
     padding: 5,
@@ -107,6 +108,7 @@ const styles = {
     fontWeight: '500',
   },
   qtyIcons: {
+    border: '1px solid #00A99D',
     cursor: 'pointer',
     fontSize: 15
   },
@@ -117,7 +119,7 @@ const styles = {
   },
   qtyCell: {
     display: 'flex',
-    justifyContent: 'space-between',
+    flexDirection: 'row',
     alignItems: 'center'
   }
 }

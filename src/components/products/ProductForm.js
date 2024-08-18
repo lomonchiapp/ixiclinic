@@ -18,9 +18,10 @@ import { useProductState } from 'src/contexts/productState'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import Close from '@mui/icons-material/Close'
 
-// ** Firestore Imports
-import {database} from 'src/firebase'
-import {collection, addDoc, getDocs} from 'firebase/firestore'
+// ** Hooks
+import { newProduct } from 'src/hooks/products/newProduct'
+import { getProductCategories } from 'src/hooks/products/categories/getProductCategories'
+import { getProductProviders } from 'src/hooks/products/providers/getProductProviders'
 
 // ** Custom Components
 import { CategoryFormDialog } from './CategoryFormDialog'
@@ -28,9 +29,9 @@ import { ProvFormDialog } from './providers/ProvFormDialog'
 import { ProductCategorySelect } from 'src/components/inputs/ProductCategorySelect'
 import { ProvidersSelect } from 'src/components/inputs/ProvidersSelect'
 
+
 export const ProductForm = ({ open, setOpen }) => {
   // ** Local States
-  const [openDialog, setOpenDialog] = useState(false)
   const [newCategory, setNewCategory] = useState(false)
   const [newProvider, setNewProvider] = useState(false)
   const [product, setProduct] = useState({
@@ -40,75 +41,42 @@ export const ProductForm = ({ open, setOpen }) => {
     cost: 0,
     provider: '',
     stock: 0,
-    description: ''
+    description: '',
+    note: '',
+    createdAt: new Date(),
   })
   const [providers, setProviders] = useState([])
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [note, setNote] = useState(false)
-  // ** Global Product States
-  const {
-    name,
-    category,
-    setCategory,
-    price,
-    cost,
-    provider,
-    stock,
-    setName,
-    setPrice,
-    setCost,
-    description,
-    setDescription,
-    setProvider,
-    setStock,
-    reset
-  } = useProductState()
-
-  const fetchCategories = async () => {
-    const querySnapshot = await getDocs(collection(database, 'product_categories'));
-    const categories = querySnapshot.docs.map((doc) => {
-      return { id: doc.id, ...doc.data() };
-    });
-    setCategories(categories);
-  }
-  useEffect(() => {
-    fetchCategories();
-  }, []);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      const categories = await getProductCategories()
+      setCategories(categories)
+    }
     const fetchProviders = async () => {
-      const querySnapshot = await getDocs(collection(database, 'product_providers'));
-      const providers = querySnapshot.docs.map((doc) => {
-        return { id: doc.id, ...doc.data() };
-      });
-      setProviders(providers);
-    };
+      const providers = await getProductProviders()
+      setProviders(providers)
+    }
+    fetchCategories()
+    fetchProviders()
+  }, [categories, providers])
 
-    fetchProviders();
-  }, []);
-
+  // ** Destructuring product
   const router = useRouter()
 
   const handleSubmit = async event => {
     event.preventDefault()
     try {
-      const docRef = await addDoc(collection(database, 'products'), { // Im using Global state for this, just because...
-        name: name,
-        category: category,
-        price: price,
-        cost: cost,
-        provider: provider,
-        stock: stock,
-        description: description
-      })
-      console.log('Document written with ID: ', docRef.id)
-      reset()
+      const productRef = await newProduct(product)
+      console.log('Product added: ', productRef)
       setOpen(false)
-    } catch (e) {
-      console.error('Error adding document: ', e)
+    } catch (error) {
+      console.error('Error creating new product: ', error)
     }
-};
+  }
+
   // ** Handlers
   const handleNameChange = value => setName(value)
   const handlePriceChange = value => setPrice(value)

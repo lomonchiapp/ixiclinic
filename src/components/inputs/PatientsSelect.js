@@ -18,7 +18,7 @@ export function PatientsSelect({ setPatient }) {
       }
     };
     fetchPatients();
-  }, []); // Add an empty dependency array to avoid unnecessary re-fetching
+  }, [patients]); // Add an empty dependency array to avoid unnecessary re-fetching
 
   const handleChange = (event, newValue) => {
     setSelectedPatient(newValue);

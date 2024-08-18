@@ -1,8 +1,10 @@
-import {create} from 'zustand';
+import {create} from 'zustand'
+import { serverTimestamp } from 'firebase/firestore';
 
 const initialState = {
   patient:'',
   doctor:'',
+  date: new Date(),
   prodTotal:0,
   servTotal:0,
   variationsTotal:0,
@@ -16,18 +18,22 @@ const initialState = {
   prices:[],
   qties:[],
 };
-export const useRecordState = create((set) => ({
+export const useRecordState = create((set, get) => ({
   patient:'',
   doctor:'',
   procedure:'',
   notes:'',
+  date: new Date(),
+  nextDate: '',
+  nextService: '',
   servTotal: 0,
   variationsTotal: 0,
+  servVariations: [],
   prodTotal: 0,
   total: () => {
-    return servTotal + variationsTotal + prodTotal
+    const { servTotal, variationsTotal, prodTotal } = get();
+    return servTotal + variationsTotal + prodTotal;
   },
-  servVariations: [],
   problems:[],
   servList:[],
   prodList:[],
@@ -35,9 +41,13 @@ export const useRecordState = create((set) => ({
   qties:[],
   setPatient: (patient) => set({patient}),
   setDoctor: (doctor) => set({doctor}),
-  setServVariations: (servVariations) => set({servVariations}),
+  setServVariations: (servVariations) => set({ servVariations }),
+  setDate: (date) => set({date}),
+  setNextDate: (nextDate) => set({nextDate}),
+  setNextService: (nextService) => set({nextService}),
   setProdTotal: (prodTotal) => set({prodTotal}),
   setServTotal: (servTotal) => set({servTotal}),
+  setVariationsTotal: (variationsTotal) => set({variationsTotal}),
   setProblems: (problems) => set({problems}),
   setServList: (servList) => set({servList}),
   setProdList: (prodList) => set({prodList}),
