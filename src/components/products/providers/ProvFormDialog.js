@@ -11,11 +11,13 @@ import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import Grid from '@mui/material/Grid'
 
-// ** Firestore Imports
-import { database } from 'src/firebase'
-import { collection, addDoc } from 'firebase/firestore'
+// ** React input mask
+import InputMask from 'react-input-mask'
 
-export function ProvFormDialog({ open, setOpen, setProviders }) {
+// ** Hooks
+import { newProvider } from 'src/hooks/products/providers/newProvider'
+
+export function ProvFormDialog({ open, setOpen, setProviders, providers, setProduct }) {
   const [provider, setProvider] = useState({ name: '', phone: '', email: '', notes: ''});
 
   const handleClose = () => {
@@ -25,18 +27,16 @@ export function ProvFormDialog({ open, setOpen, setProviders }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const docRef = await addDoc(collection(database, 'product_providers'),{
-        ...provider,
-        dateAdded: new Date(),
-      });
-      console.log('Document written with ID: ', docRef.id);
-      setProvider({ name: '', phone: '', email: '', notes: ''})
-      setOpen(false);
-    }
-    catch (e) {
-      console.error('Error adding document: ', e);
-    }
+      const providerRef = await newProvider(provider);
+      console.log('Provider added: ', providerRef.id);
+      setProvider({ name: '', phone: '', email: '', notes: '' });
+      setOpen(false)
+      setProduct(prevProduct => ({...prevProduct, provider: providerRef.id}));
+    } catch (error) {
+      console.error('Error creating new provider: ', error);
   }
+}
+
   const handleChange = (event) => {
     setProvider({ ...provider, [event.target.name]: event.target.value });
   };
@@ -66,17 +66,17 @@ export function ProvFormDialog({ open, setOpen, setProviders }) {
           </Grid>
           <Grid item container>
             <Grid item xs={6}>
-              <TextField
-                margin="dense"
-                id="phone"
-                name="phone"
-                label="Telefono"
-                type="text"
-                fullWidth
-                variant="standard"
-                value={provider.phone}
-                onChange={handleChange}
-              />
+              <InputMask mask="(999) 999-9999" value={provider.phone} onChange={handleChange} >
+                {() => <TextField
+                  margin="dense"
+                  id="phone"
+                  name="phone"
+                  label="Teléfono"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                />}
+              </InputMask>
             </Grid>
             <Grid item xs={6}>
               <TextField
@@ -104,6 +104,7 @@ export function ProvFormDialog({ open, setOpen, setProviders }) {
             onChange={handleChange}
           />
           <Button type='button' onClick={handleSubmit}>Agregar</Button>
+          <Button type='button' onClick={() => setOpen(false)}>Cancelar</Button>
         </form>
       </DialogContent>
     </Dialog>

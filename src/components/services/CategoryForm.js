@@ -8,7 +8,7 @@ import TextField from '@mui/material/TextField'
 //Custom Hook
 import { newCategory } from 'src/hooks/services/categories/newCategory'
 
-export function CategoryForm({setOpen}) {
+export function CategoryForm({setOpen, setService}) {
   const [serviceCategory, setServiceCategory] = useState({ name: '', description: '' });
   const [serviceCategories, setServiceCategories] = useState([]);
 
@@ -23,6 +23,8 @@ export function CategoryForm({setOpen}) {
       setServiceCategories([...serviceCategories, category]);
       setServiceCategory({ name: '', description: '' });
       setOpen(false)
+      setService(prevState => ({...prevState, category: category}))
+      set
     } catch (error) {
       console.error("Error creating new category: ", error);
       // Optionally, you can add user notification here

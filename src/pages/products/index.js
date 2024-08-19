@@ -5,7 +5,7 @@ import Grid from "@mui/material/Grid";
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import Typography from '@mui/material/Typography';
 // Custom Components
-import { ProductsList } from "src/components/products/ProductsList";
+import { ProductsTable } from "src/components/products/ProductsTable";
 import { AddProductDrawer } from "src/components/products/AddProductDrawer";
 
 import { useState } from "react";
@@ -24,7 +24,7 @@ const ProductsPage = () => {
 
       </Grid>
       </Grid>
-      <ProductsList drawerIsOpen={open} />
+      <ProductsTable drawerIsOpen={open} />
       <AddProductDrawer open={open} setOpen={setOpen} />
       </>
   );

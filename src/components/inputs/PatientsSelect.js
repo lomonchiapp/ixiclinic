@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Box, FormControl, TextField } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
-import { usePatientStore } from 'src/hooks/globalStates/usePatientStore';
+import { useRecordState } from 'src/contexts/recordState';
 import { getPatients } from 'src/hooks/patients/getPatients';
 
 export function PatientsSelect({ setPatient }) {
-  const { setSelectedPatient, selectedPatient } = usePatientStore();
+  const { setSelectedPatient, selectedPatient } = useRecordState();
   const [patients, setPatients] = useState([]);
 
   useEffect(() => {

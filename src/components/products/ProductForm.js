@@ -10,6 +10,8 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
+import MenuItem from '@mui/material/MenuItem'
+import Typography from '@mui/material/Typography'
 
 // ** Global States
 import { useProductState } from 'src/contexts/productState'
@@ -28,6 +30,8 @@ import { CategoryFormDialog } from './CategoryFormDialog'
 import { ProvFormDialog } from './providers/ProvFormDialog'
 import { ProductCategorySelect } from 'src/components/inputs/ProductCategorySelect'
 import { ProvidersSelect } from 'src/components/inputs/ProvidersSelect'
+import { Select } from '@mui/material'
+import { ArrowBack } from '@mui/icons-material'
 
 
 export const ProductForm = ({ open, setOpen }) => {
@@ -78,11 +82,11 @@ export const ProductForm = ({ open, setOpen }) => {
   }
 
   // ** Handlers
-  const handleNameChange = value => setName(value)
-  const handlePriceChange = value => setPrice(value)
-  const handleCostChange = value => setCost(value)
-  const handleStockChange = value => setStock(value)
-  const handleDescriptionChange = value => setDescription(value)
+  const handleNameChange = value => setProduct({ ...product, name: value })
+  const handlePriceChange = value => setProduct({ ...product, price: value })
+  const handleCostChange = value => setProduct({ ...product, cost: value })
+  const handleStockChange = value => setProduct({ ...product, stock: value })
+  const handleDescriptionChange = value => setProduct({ ...product, description: value })
 
 
   return (
@@ -102,12 +106,12 @@ export const ProductForm = ({ open, setOpen }) => {
                 sx={{ width: '60%', marginRight: 2, marginBottom: 4 }}
                 label='Nombre de Producto'
                 placeholder='Nombre del Producto'
-                value={name}
+                value={product.name}
                 onChange={e => handleNameChange(e.target.value)}
               />
               <TextField
                 size='large'
-                value={stock}
+                value={product.stock}
                 type='number'
                 id='stock'
                 name='stock'
@@ -118,37 +122,54 @@ export const ProductForm = ({ open, setOpen }) => {
               />
             </Grid>
             <Grid sx={{ alignItems: 'center', marginBottom: 4 }} container item>
-              <ProductCategorySelect
-                productCategory={category}
-                setProductCategory={setCategory}
-                isDialogOpen={newCategory}
-              />
+              <Typography sx={styles.label}>Seleccione una Categoría:</Typography>
+              <Select
+                size='large'
+                sx={{ width: '80%' }}
+                value={product.category}
+                onChange={e => setProduct({ ...product, category: e.target.value })}
+                >
+                {categories.map(category => (
+                  <MenuItem key={category.id} value={category.id}>
+                    {category.name}
+                  </MenuItem>
+                ))}
+                </Select>
               <AddCircleIcon
                 onClick={() => setNewCategory(true)}
                 fontSize='medium'
                 color='primary'
                 sx={{ cursor: 'pointer', marginLeft: 2 }}
               />
-              <CategoryFormDialog update={fetchCategories} open={newCategory} setOpen={setNewCategory} />
+              <CategoryFormDialog setProduct={setProduct} open={newCategory} setOpen={setNewCategory} />
             </Grid>
             <Grid sx={{ alignItems: 'center' }} container item>
-              <ProvidersSelect
-                provider={provider}
-                setProvider={setProvider}
-                isDialogOpen={newProvider}
-              />
+            <Typography sx={styles.label}>Seleccione un Proveedor:</Typography>
+
+                <Select
+                size='large'
+                sx={{ width: '80%' }}
+                value={product.provider || ''}
+                onChange={e => setProduct({ ...product, provider: e.target.value })}
+                >
+                {providers.map(provider => (
+                  <MenuItem key={provider.id} value={provider.id}>
+                    {provider.name}
+                  </MenuItem>
+                ))}
+                </Select>
               <AddCircleIcon
                 onClick={() => setNewProvider(true)}
                 fontSize='medium'
                 color='primary'
                 sx={{ cursor: 'pointer', marginLeft: 2 }}
               />
-              <ProvFormDialog setProviders={setProviders} open={newProvider} setOpen={setNewProvider} />
+              <ProvFormDialog setProduct={setProduct} setProviders={setProviders} open={newProvider} setOpen={setNewProvider} />
             </Grid>
             <Grid sx={{ marginTop: 4, alignItems: 'center' }} item container>
               <TextField
                 size='large'
-                value={price}
+                value={product.price}
                 type='number'
                 id='price'
                 name='price'
@@ -159,7 +180,7 @@ export const ProductForm = ({ open, setOpen }) => {
               />
               <TextField
                 size='large'
-                value={cost}
+                value={product.cost}
                 type='number'
                 id='cost'
                 name='cost'
@@ -176,7 +197,7 @@ export const ProductForm = ({ open, setOpen }) => {
                     size='large'
                     multiline
                     rows={4}
-                    value={description}
+                    value={product.description}
                     type='text'
                     id='description'
                     name='description'
@@ -207,9 +228,10 @@ export const ProductForm = ({ open, setOpen }) => {
               <Button
                 onClick={() => setOpen(false)}
                 type='button'
+                color='secondary'
                 variant='outlined'
                 size='large'
-                startIcon={<AddCircleIcon />}
+                startIcon={<ArrowBack/>}
               >
                 Cancelar
               </Button>
@@ -219,4 +241,10 @@ export const ProductForm = ({ open, setOpen }) => {
       </form>
     </Card>
   )
+}
+
+const styles = {
+  label: {
+    fontSize: 14,
+  },
 }

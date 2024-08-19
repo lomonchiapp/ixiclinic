@@ -33,8 +33,8 @@ export const ServiceForm = ({ open, setOpen }) => {
     duration: 0 // in minutes
   })
   const router = useRouter()
-  const handleServiceCategoryChange = value => {
-    setService({ ...service, category: value })
+  const handleServiceCategoryChange = category => {
+    setService({ ...service, category })
   }
   const handleSubmit = async event => {
     event.preventDefault()
@@ -86,7 +86,7 @@ export const ServiceForm = ({ open, setOpen }) => {
                 onClick={() => setNewCategory(true)}
               ></Button>
               <ViewDialog open={newCategory} setOpen={setNewCategory}>
-                <CategoryForm setOpen={setNewCategory}/>
+                <CategoryForm setService={setService} setOpen={setNewCategory}/>
               </ViewDialog>
             </Grid>
             <Grid item container> 

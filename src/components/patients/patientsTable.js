@@ -13,8 +13,9 @@ import TablePagination from '@mui/material/TablePagination'
 import IconButton from '@mui/material/IconButton'
 import DeleteIcon from '@mui/icons-material/Delete'
 import VisibilityIcon from '@mui/icons-material/Visibility'
+import Grid from '@mui/material/Grid'
 
-// ** Firestore Imports
+// ** Hooks
 import { getPatients } from 'src/hooks/patients/getPatients'
 import { deletePatient } from 'src/hooks/patients/deletePatient'
 
@@ -32,6 +33,10 @@ import { ViewDialog } from 'src/components/ViewDialog'
 import { PatientDrawer } from 'src/components/patients/PatientDrawer'
 import { EditPatient } from 'src/components/patients/EditPatient'
 import { ViewPatient } from 'src/components/patients/ViewPatient'
+import { EditDrawer } from '../EditDrawer'
+import { PatientDetail } from './PatientDetail'
+import { useSelectedPatient } from 'src/contexts/useSelectedPatient'
+import { BorderRadius } from 'mdi-material-ui'
 
 const columns = [
   { id: 'name', label: 'Nombre del Paciente', minWidth: 170 },
@@ -39,13 +44,13 @@ const columns = [
   { id: 'email', label: 'E-mail', minWidth: 170, align: 'right' },
   { id: 'nextDate', label: 'Próxima Cita', minWidth: 170, align: 'right' },
   { id: 'nextDue', label: 'Próxima Factura', minWidth: 170, align: 'right' },
-  { id: 'actions', label: 'Acciones', maxWidth: 50, align: 'center' }
+  { id: 'actions', label: 'Acciones', align: 'center' }
 ]
 
-export const PatientsTable = ({setNewPatient, newPatient}) => {
+export const PatientsTable = ({ setNewPatient, newPatient }) => {
   // ** States
   const [patients, setPatients] = useState([])
-  const { selectedPatient, setSelectedPatient } = usePatientStore()
+  const { patient, setPatient } = useSelectedPatient()
   const [page, setPage] = useState(0)
   const { searchText } = useSearchStore()
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -71,13 +76,19 @@ export const PatientsTable = ({setNewPatient, newPatient}) => {
   }
 
   const editPatient = patient => {
-    setSelectedPatient(patient)
-    editMode(true)
+    setPatient(patient)
+    setEditMode(true)
   }
   const viewPatient = patient => {
-    setSelectedPatient(patient)
-    viewMode(true)
+    setPatient(patient)
+    setViewMode(true)
   }
+
+  const handleDelete = id => {
+    deletePatient(id)
+    setPatients(patients.filter(patient => patient.id !== id))
+  }
+
   // ** UseEffect
   useEffect(() => {
     const fetchPatients = async () => {
@@ -105,8 +116,8 @@ export const PatientsTable = ({setNewPatient, newPatient}) => {
             {filteredPatients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(patient => (
               <TableRow
                 hover
-                onClick={() => setSelectedPatient(patient)}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                onClick={() => setPatient(patient)}
+                sx={styles.row}
                 key={patient.id}
                 tabIndex={-1}
               >
@@ -117,24 +128,28 @@ export const PatientsTable = ({setNewPatient, newPatient}) => {
                 <TableCell align='right'>{patient.email}</TableCell>
                 <TableCell align='right'>{patient.nextDate}</TableCell>
                 <TableCell align='right'>{patient.nextDue}</TableCell>
-                <TableCell align='right'>
-                  <Box sx={{display: "flex", justifyContent: "space-between"}}>
-
-                      <Edit />
-                      <PatientDrawer open={editMode}>
-                        <EditPatient patient={selectedPatient} setOpen={setEditMode} />
-                      </PatientDrawer>
-
-
-                      <Visibility />
-                      <ViewDialog open={viewMode}>
-                        <ViewPatient patient={selectedPatient} setOpen={setViewMode} />
+                <TableCell align='right' sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  <Grid sx={styles.btnContainer}>
+                    <Grid item>
+                      <Edit onClick={() => editPatient(patient)} sx={styles.actionButton} />
+                      <EditDrawer open={editMode} setOpen={setEditMode}>
+                        <PatientDetail setOpen={setEditMode} />
+                      </EditDrawer>
+                    </Grid>
+                    <Grid item>
+                      <Visibility onClick={() => viewPatient(patient)} sx={styles.actionButton} />
+                      <ViewDialog setOpen={setViewMode} open={viewMode}>
+                        <ViewPatient patient={patient} setOpen={setViewMode} />
                       </ViewDialog>
-
-
-                      <DeleteIcon />
-
-                  </Box>
+                    </Grid>
+                    <Grid>
+                      <DeleteIcon sx={styles.deleteButton} onClick={() => handleDelete(patient.id)} />
+                    </Grid>
+                  </Grid>
                 </TableCell>
               </TableRow>
             ))}
@@ -152,4 +167,50 @@ export const PatientsTable = ({setNewPatient, newPatient}) => {
       />
     </Paper>
   )
+}
+
+const styles = {
+  actionButton: {
+    cursor: 'pointer',
+    p: 1,
+    border: '1px solid #00A99D',
+    color: '#00a99d',
+    BorderRadius:1,
+    transition:'all 0.5s ease',
+    '&:hover': {
+      transition: 'all 0.5s ease',
+      backgroundColor: '#00A99D',
+      color: 'white',
+      borderRadius: 2,
+      border: '1px solid #00a99d'
+    }
+  },
+  deleteButton:{
+    cursor: 'pointer',
+    p: 1,
+    border: '1px solid #E10D00',
+    color: '#E10D00',
+    BorderRadius:1,
+    transition:'all 0.5s ease',
+    '&:hover': {
+      transition: 'all 0.5s ease',
+      backgroundColor: '#E10D00',
+      color: 'white',
+      borderRadius: 2,
+      border: '1px solid '
+  }
+  },
+  btnContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap:2,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  row: {
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: '#f0f0f0'
+    }
+  }
 }

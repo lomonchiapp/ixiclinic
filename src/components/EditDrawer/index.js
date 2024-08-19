@@ -2,8 +2,6 @@ import * as React from 'react';
 
 import Drawer from '@mui/material/Drawer';
 
-import { ServiceDetail } from "./ServiceDetail";
-
 export const EditDrawer = ({open, setOpen, children}) => {
 
 

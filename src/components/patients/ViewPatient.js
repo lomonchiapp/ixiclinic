@@ -1,26 +1,28 @@
 import React from 'react'
-import { usePatientStore } from 'src/hooks/globalStates/usePatientStore'
+import { useSelectedPatient } from 'src/contexts/useSelectedPatient'
 import { Grid, Box, Typography } from '@mui/material'
+
+
 export const ViewPatient = () => {
-  const { selectedPatient } = usePatientStore()
+  const { patient } = useSelectedPatient()
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
         <Box>
           <Typography variant='h6'>
-            {selectedPatient.firstName} {selectedPatient.lastName}
+            {patient.firstName} {patient.lastName}
           </Typography>
-          <Typography variant='h6'>{selectedPatient.phone}</Typography>
-          <Typography variant='h6'>{selectedPatient.dateOfBirth}</Typography>
-          <Typography variant='h6'>{selectedPatient.isAllergic}</Typography>
-          <Typography variant='h6'>{selectedPatient.allergy}</Typography>
-          <Typography variant='h6'>{selectedPatient.usedProducts}</Typography>
-          <Typography variant='h6'>{selectedPatient.skinType}</Typography>
-          <Typography variant='h6'>{selectedPatient.pastProcedures}</Typography>
-          <Typography variant='h6'>{selectedPatient.suggestions}</Typography>
-          <Typography variant='h6'>{selectedPatient.notes}</Typography>
-          <Typography variant='h6'>{selectedPatient.rnc}</Typography>
-          <Typography variant='h6'>{selectedPatient.email}</Typography>
+          <Typography variant='h6'>{patient.phone}</Typography>
+          <Typography variant='h6'>{patient.dateOfBirth}</Typography>
+          <Typography variant='h6'>{patient.isAllergic}</Typography>
+          <Typography variant='h6'>{patient.allergy}</Typography>
+          <Typography variant='h6'>{patient.usedProducts}</Typography>
+          <Typography variant='h6'>{patient.skinType}</Typography>
+          <Typography variant='h6'>{patient.pastProcedures}</Typography>
+          <Typography variant='h6'>{patient.suggestions}</Typography>
+          <Typography variant='h6'>{patient.notes}</Typography>
+          <Typography variant='h6'>{patient.rnc}</Typography>
+          <Typography variant='h6'>{patient.email}</Typography>
         </Box>
       </Grid>
     </Grid>

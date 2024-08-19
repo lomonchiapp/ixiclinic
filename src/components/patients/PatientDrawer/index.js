@@ -15,7 +15,7 @@ export const PatientDrawer = ({ open, setOpen, children}) => {
       onClose={handleClose}
       sx={{
         '& .MuiDrawer-paper': {
-          width: '50%',
+          maxWidth:550,
           boxSizing: 'border-box'
         }
       }}

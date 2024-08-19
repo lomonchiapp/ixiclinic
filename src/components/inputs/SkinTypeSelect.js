@@ -44,6 +44,7 @@ export default function SkinTypeSelect({isDialogOpen}) {
         <InputLabel id="demo-simple-select-label">Tipo de piel</InputLabel>
         <Select
           labelId="demo-simple-select-label"
+          size="small"
           id="demo-simple-select"
           sx={{ minWidth: 250}}
           value={skinType}

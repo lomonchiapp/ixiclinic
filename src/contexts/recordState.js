@@ -2,7 +2,7 @@ import {create} from 'zustand'
 import { serverTimestamp } from 'firebase/firestore';
 
 const initialState = {
-  patient:'',
+  selectedPatient:'',
   doctor:'',
   date: new Date(),
   prodTotal:0,
@@ -39,7 +39,7 @@ export const useRecordState = create((set, get) => ({
   prodList:[],
   prices:[],
   qties:[],
-  setPatient: (patient) => set({patient}),
+  setSelectedPatient: (selectedPatient) => set({selectedPatient}),
   setDoctor: (doctor) => set({doctor}),
   setServVariations: (servVariations) => set({ servVariations }),
   setDate: (date) => set({date}),

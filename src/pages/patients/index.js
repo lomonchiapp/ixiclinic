@@ -6,7 +6,7 @@ import {PatientsTable} from "../../components/patients/patientsTable";
 import Grid from "@mui/material/Grid";
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import { PatientDrawer } from 'src/components/patients/PatientDrawer';
-import NewPatient from './newPatient';
+import { PatientForm } from 'src/components/patients/PatientForm';
 
 const PatientsPage = () => {
   const [newPatient, setNewPatient] = useState(false)
@@ -19,7 +19,7 @@ const PatientsPage = () => {
 
           <Button startIcon={<ControlPointIcon/>} variant="contained" color="primary" onClick={() => setNewPatient(true)}>Agregar Paciente</Button>
           <PatientDrawer setOpen={setNewPatient} open={newPatient}>
-            <NewPatient setOpen={setNewPatient} />
+            <PatientForm setOpen={setNewPatient}/>
           </PatientDrawer>
       </Grid>
       </Grid>

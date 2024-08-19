@@ -1,0 +1,17 @@
+/* Custom scrollbar styles */
+.formContainer::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .formContainer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  .formContainer::-webkit-scrollbar-thumb {
+    background: #00A99D;
+    border-radius: 10px;
+  }
+  
+  .formContainer::-webkit-scrollbar-thumb:hover {
+    background: #007f7a;
+  }

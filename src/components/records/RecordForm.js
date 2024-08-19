@@ -82,7 +82,7 @@ export const RecordForm = ({ newPatient, setNewPatient, newService, setNewServic
         <CardContent>
           <Grid>
             <Grid sx={{display:'flex', flexDirection:'row', justifyContent:'space-between'}} item>
-              <PatientsSelect patient={patient} setPatient={setPatient} patients={patients} />
+              <PatientsSelect />
               <Box sx={styles.dateContainer}>
                 <Typography sx={styles.dateLabel}>Fecha:</Typography>
                 <Typography sx={styles.dateValue}>

@@ -7,16 +7,17 @@ import Typography from '@mui/material/Typography';
 import Grid from "@mui/material/Grid";
 // ** Custom Components
 import {AddServiceDrawer} from "../../components/services/AddServiceDrawer";
-import {ServicesList} from "../../components/services/ServicesList";
+import {ServicesTable} from "../../components/services/ServicesTable";
 // ** Icons
 import MultipleStopIcon from '@mui/icons-material/MultipleStop';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import { VariationsDialog } from "src/components/services/variations/VariationsDialog";
 
 const ServicesPage = () => {
-  const [openDrawer, setOpenDrawer] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
-
+  const [openDrawer, setOpenDrawer] = useState(false)
+  const [openDialog, setOpenDialog] = useState(false)
+  
+  
   return (
     <>
     <Grid container spacing={3}>
@@ -29,7 +30,7 @@ const ServicesPage = () => {
           </Box>
       </Grid>
       </Grid>
-      <ServicesList drawerIsOpen={openDrawer} />
+      <ServicesTable drawerIsOpen={openDrawer} />
       <AddServiceDrawer open={openDrawer} setOpen={setOpenDrawer} />
       <VariationsDialog open={openDialog} setOpen={setOpenDialog} />
       </>

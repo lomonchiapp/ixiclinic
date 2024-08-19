@@ -14,11 +14,15 @@ import Dialog from '@mui/material/Dialog'
 // ** MUI Icons
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 
+// ** Hook
+import {newCategory} from 'src/hooks/products/categories/newCategory'
+
 // ** Firestore Imports
 import { database } from 'src/firebase'
 import { collection, addDoc, getDocs } from 'firebase/firestore'
+import { set } from 'nprogress'
 
-export  function CategoryFormDialog({ open, setOpen}) {
+export  function CategoryFormDialog({ open, setOpen, setProduct}) {
   // ** Local States
   const [productCategory, setProductCategory] = useState({ name: '', description: '', dateAdded: new Date() });
 
@@ -34,17 +38,16 @@ export  function CategoryFormDialog({ open, setOpen}) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const docRef = await addDoc(collection(database, 'product_categories'), {
-        ...productCategory,
-        dateAdded: new Date(),
-      });
-      console.log('Document written with ID: ', docRef.id);
+      const category = await newCategory(productCategory)
+      console.log('Category added: ', category);
       setProductCategory({ name: '', description: '' });
+      setProduct(prevProduct => ({...prevProduct, category: category}));
       setOpen(false);
-    } catch (e) {
-      console.error('Error adding document: ', e);
+    } catch (error) {
+      console.error("Error creating new category: ", error);
+      // Optionally, you can add user notification here
     }
-  };
+  }
 
   return (
       <Dialog open={open} onClose={handleClose}>

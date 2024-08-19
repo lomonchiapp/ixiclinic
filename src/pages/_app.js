@@ -19,6 +19,7 @@ import { createEmotionCache } from 'src/@core/utils/create-emotion-cache'
 import 'react-perfect-scrollbar/dist/css/styles.css'
 // ** Global css styles
 import '../../styles/globals.css'
+import 'src/components/patients/PatientDetail.css'
 // React router
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import PatientsPage from './patients'

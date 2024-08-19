@@ -6,5 +6,5 @@ export const getProductCategories = async () => {
     const categories = querySnapshot.docs.map((doc) => {
       return { id: doc.id, ...doc.data() };
     });
-    setCategories(categories);
+    return categories;
   }

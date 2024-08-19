@@ -30,7 +30,8 @@ export function ServiceCategorySelect({isDialogOpen, serviceCategory, setService
   }, [isDialogOpen]);
 
   const handleChange = (event) => {
-    setServiceCategory(event.target.value);
+    const selectedCategory = serviceCategories.find((category) => category.id === event.target.value);
+    setServiceCategory(selectedCategory);
   };
 
   return (
@@ -41,7 +42,7 @@ export function ServiceCategorySelect({isDialogOpen, serviceCategory, setService
           labelId="demo-simple-select-label"
           id="demo-simple-select"
           sx={{ minWidth: 200}}
-          value={serviceCategory}
+          value={serviceCategory.id || ''}
           label="Categoria de Servicio"
           onChange={handleChange}
         >
