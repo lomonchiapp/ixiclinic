@@ -13,8 +13,6 @@ import { ServiceCategorySelect } from 'src/components/inputs/ServiceCategorySele
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import { Typography } from '@mui/material'
 // ** Firestore Imports
-import { database, FIREBASE_APP } from 'src/firebase'
-import { collection, addDoc } from 'firebase/firestore'
 // ** Custom Components
 import { Backspace } from '@mui/icons-material'
 import { ViewDialog } from '../ViewDialog'
@@ -32,10 +30,10 @@ export const ServiceForm = ({ open, setOpen }) => {
     cost: 0.0,
     duration: 0 // in minutes
   })
-  const router = useRouter()
   const handleServiceCategoryChange = category => {
     setService({ ...service, category })
   }
+
   const handleSubmit = async event => {
     event.preventDefault()
     try {
@@ -86,10 +84,10 @@ export const ServiceForm = ({ open, setOpen }) => {
                 onClick={() => setNewCategory(true)}
               ></Button>
               <ViewDialog open={newCategory} setOpen={setNewCategory}>
-                <CategoryForm setService={setService} setOpen={setNewCategory}/>
+                <CategoryForm setService={setService} setOpen={setNewCategory} />
               </ViewDialog>
             </Grid>
-            <Grid item container> 
+            <Grid item container>
               <TextField
                 size='small'
                 value={service.price}

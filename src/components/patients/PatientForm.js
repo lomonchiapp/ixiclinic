@@ -1,7 +1,5 @@
 // ** React Imports
-import { useForm, FormState } from 'react-hook-form'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/router'
 import InputMask from 'react-input-mask'
 
 // ** MUI Imports
@@ -35,6 +33,7 @@ import SkinFormDialog from 'src/components/skinTypes/SkinFormDialog'
 
 // Global State
 import { usePatientStore } from 'src/hooks/globalStates/usePatientStore'
+import {useGlobalStore} from 'src/contexts/useGlobalStore'
 import CloseIcon from '@mui/icons-material/Close'
 
 export const PatientForm = ({ setOpen }) => {
@@ -46,9 +45,16 @@ export const PatientForm = ({ setOpen }) => {
   const [dobVisible, setDobVisible] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [advanced, setAdvanced] = useState(false)
+  // ** Global State
+  const {fetchPatients} = useGlobalStore()
   const { patient, setPatient } = usePatientStore()
 
   // ** Handlers
+  const handleCreate = async () => {
+    await newPatient(patient)
+    fetchPatients()
+    setOpen(false)
+  }
 
   const handleOpenDialog = () => setIsDialogOpen(true)
 
@@ -123,7 +129,7 @@ export const PatientForm = ({ setOpen }) => {
                 control={
                   <Switch
                     checked={patient.isAllergic}
-                    onChange={() => setPatient(prevIsAll => ({ ...patient, isAllergic: !prevIsAll }))}
+                    onChange={() => setPatient(({ ...patient, isAllergic: !patient.isAllergic }))}
                     size='large'
                   />
                 }
@@ -282,7 +288,7 @@ export const PatientForm = ({ setOpen }) => {
           </Grid>
           <Box sx={styles.submitContainer}>
           <Button
-              onClick={() => newAndRecord(patient)}
+              onClick={() => newAndRecord()}
               type='button'
               variant='contained'
               size='large'
@@ -292,7 +298,7 @@ export const PatientForm = ({ setOpen }) => {
             </Button>
 
             <Button
-              onClick={() => newPatient(patient)}
+              onClick={() => handleCreate()}
               type='button'
               variant='outlined'
               size='large'
@@ -300,7 +306,7 @@ export const PatientForm = ({ setOpen }) => {
             >
               Agregar y Salir
             </Button>
-           
+
           </Box>
         </CardContent>
       </Card>

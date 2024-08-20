@@ -43,7 +43,7 @@ export const ServicesTable = () => {
   // ** Local States
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
-  
+
   //Global States
   const { searchText } = useSearchStore()
   const { service, setService } = useSelectedService()
@@ -52,7 +52,7 @@ export const ServicesTable = () => {
   //Modes
   const [editMode, setEditMode] = useState(false)
   const [viewMode, setViewMode] = useState(false)
-  
+
   // Filter Services
   const filteredServices = services.filter(service => {
     const searchLower = searchText.toLowerCase()
@@ -86,7 +86,7 @@ export const ServicesTable = () => {
 
   useEffect(() => {
     fetchServices()
-  }, [services, fetchServices])
+  }, [fetchServices])
 
 
   return (
@@ -110,7 +110,7 @@ export const ServicesTable = () => {
                 </TableCell>
                 <TableCell align='right'>{service.category?.name}</TableCell>
                 <TableCell align='right'>{service.price}</TableCell>
-                
+
                 <TableCell align='right'>{service.stock}</TableCell>
                 <TableCell align='right'>{service.cost}</TableCell>
                 <TableCell

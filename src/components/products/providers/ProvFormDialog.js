@@ -17,7 +17,7 @@ import InputMask from 'react-input-mask'
 // ** Hooks
 import { newProvider } from 'src/hooks/products/providers/newProvider'
 
-export function ProvFormDialog({ open, setOpen, setProviders, providers, setProduct }) {
+export function ProvFormDialog({ open, setOpen, setProduct }) {
   const [provider, setProvider] = useState({ name: '', phone: '', email: '', notes: ''});
 
   const handleClose = () => {

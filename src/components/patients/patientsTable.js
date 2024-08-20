@@ -16,27 +16,21 @@ import VisibilityIcon from '@mui/icons-material/Visibility'
 import Grid from '@mui/material/Grid'
 
 // ** Hooks
-import { getPatients } from 'src/hooks/patients/getPatients'
 import { deletePatient } from 'src/hooks/patients/deletePatient'
 
 // ** Global State
 import { useSearchStore } from 'src/hooks/globalStates/useSearchStore'
-import { usePatientStore } from 'src/hooks/globalStates/usePatientStore'
+import { useGlobalStore } from 'src/contexts/useGlobalStore'
 
 // ** toastify
-import { toast } from 'react-toastify'
-import { Box } from '@mui/material'
 import { Visibility } from '@mui/icons-material'
 import { Edit } from '@mui/icons-material'
 
 import { ViewDialog } from 'src/components/ViewDialog'
-import { PatientDrawer } from 'src/components/patients/PatientDrawer'
-import { EditPatient } from 'src/components/patients/EditPatient'
 import { ViewPatient } from 'src/components/patients/ViewPatient'
 import { EditDrawer } from '../EditDrawer'
 import { PatientDetail } from './PatientDetail'
 import { useSelectedPatient } from 'src/contexts/useSelectedPatient'
-import { BorderRadius } from 'mdi-material-ui'
 
 const columns = [
   { id: 'name', label: 'Nombre del Paciente', minWidth: 170 },
@@ -49,19 +43,21 @@ const columns = [
 
 export const PatientsTable = ({ setNewPatient, newPatient }) => {
   // ** States
-  const [patients, setPatients] = useState([])
-  const { patient, setPatient } = useSelectedPatient()
   const [page, setPage] = useState(0)
-  const { searchText } = useSearchStore()
   const [rowsPerPage, setRowsPerPage] = useState(10)
+  // ** Global State
+  const { searchText } = useSearchStore()
+  const { patient, setPatient } = useSelectedPatient()
+  const { patients, fetchPatients, setPatients } = useGlobalStore()
+
   //Modes
   const [editMode, setEditMode] = useState(false)
   const [viewMode, setViewMode] = useState(false)
 
   const filteredPatients = patients.filter(patient => {
     const searchLower = searchText.toLowerCase()
-    const firstNameMatch = patient.firstName.toLowerCase().includes(searchLower)
-    const lastNameMatch = patient.lastName.toLowerCase().includes(searchLower)
+    const firstNameMatch = patient.firstName?.toLowerCase().includes(searchLower)
+    const lastNameMatch = patient.lastName?.toLowerCase().includes(searchLower)
     return firstNameMatch || lastNameMatch
   })
 
@@ -91,13 +87,8 @@ export const PatientsTable = ({ setNewPatient, newPatient }) => {
 
   // ** UseEffect
   useEffect(() => {
-    const fetchPatients = async () => {
-      const patientsData = await getPatients()
-      setPatients(patientsData)
-    }
-
     fetchPatients()
-  }, [])
+  }, [fetchPatients])
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
@@ -114,13 +105,7 @@ export const PatientsTable = ({ setNewPatient, newPatient }) => {
           </TableHead>
           <TableBody>
             {filteredPatients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(patient => (
-              <TableRow
-                hover
-                onClick={() => setPatient(patient)}
-                sx={styles.row}
-                key={patient.id}
-                tabIndex={-1}
-              >
+              <TableRow hover onClick={() => setPatient(patient)} sx={styles.row} key={patient.id} tabIndex={-1}>
                 <TableCell component='th' scope='row'>
                   {patient.firstName} {patient.lastName}
                 </TableCell>
@@ -128,11 +113,14 @@ export const PatientsTable = ({ setNewPatient, newPatient }) => {
                 <TableCell align='right'>{patient.email}</TableCell>
                 <TableCell align='right'>{patient.nextDate}</TableCell>
                 <TableCell align='right'>{patient.nextDue}</TableCell>
-                <TableCell align='right' sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
+                <TableCell
+                  align='right'
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}
+                >
                   <Grid sx={styles.btnContainer}>
                     <Grid item>
                       <Edit onClick={() => editPatient(patient)} sx={styles.actionButton} />
@@ -175,8 +163,8 @@ const styles = {
     p: 1,
     border: '1px solid #00A99D',
     color: '#00a99d',
-    BorderRadius:1,
-    transition:'all 0.5s ease',
+    BorderRadius: 1,
+    transition: 'all 0.5s ease',
     '&:hover': {
       transition: 'all 0.5s ease',
       backgroundColor: '#00A99D',
@@ -185,25 +173,25 @@ const styles = {
       border: '1px solid #00a99d'
     }
   },
-  deleteButton:{
+  deleteButton: {
     cursor: 'pointer',
     p: 1,
     border: '1px solid #E10D00',
     color: '#E10D00',
-    BorderRadius:1,
-    transition:'all 0.5s ease',
+    BorderRadius: 1,
+    transition: 'all 0.5s ease',
     '&:hover': {
       transition: 'all 0.5s ease',
       backgroundColor: '#E10D00',
       color: 'white',
       borderRadius: 2,
       border: '1px solid '
-  }
+    }
   },
   btnContainer: {
     display: 'flex',
     flexDirection: 'row',
-    gap:2,
+    gap: 2,
     alignItems: 'center',
     justifyContent: 'center'
   },

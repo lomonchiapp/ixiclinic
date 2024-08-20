@@ -14,7 +14,8 @@ import MenuItem from '@mui/material/MenuItem'
 import Typography from '@mui/material/Typography'
 
 // ** Global States
-import { useProductState } from 'src/contexts/productState'
+import { useProductStore } from 'src/hooks/globalStates/useProductStore'
+import { useGlobalStore } from 'src/contexts/useGlobalStore'
 
 // ** Icons Imports
 import AddCircleIcon from '@mui/icons-material/AddCircle'
@@ -22,63 +23,31 @@ import Close from '@mui/icons-material/Close'
 
 // ** Hooks
 import { newProduct } from 'src/hooks/products/newProduct'
-import { getProductCategories } from 'src/hooks/products/categories/getProductCategories'
-import { getProductProviders } from 'src/hooks/products/providers/getProductProviders'
 
 // ** Custom Components
 import { CategoryFormDialog } from './CategoryFormDialog'
 import { ProvFormDialog } from './providers/ProvFormDialog'
-import { ProductCategorySelect } from 'src/components/inputs/ProductCategorySelect'
-import { ProvidersSelect } from 'src/components/inputs/ProvidersSelect'
 import { Select } from '@mui/material'
 import { ArrowBack } from '@mui/icons-material'
-
 
 export const ProductForm = ({ open, setOpen }) => {
   // ** Local States
   const [newCategory, setNewCategory] = useState(false)
   const [newProvider, setNewProvider] = useState(false)
-  const [product, setProduct] = useState({
-    name: '',
-    category: '',
-    price: 0,
-    cost: 0,
-    provider: '',
-    stock: 0,
-    description: '',
-    note: '',
-    createdAt: new Date(),
-  })
-  const [providers, setProviders] = useState([])
-  const [products, setProducts] = useState([])
-  const [categories, setCategories] = useState([])
+  const { product, setProduct } = useProductStore()
+  const { fetchProdCategories, fetchProdProviders, fetchProducts, productCategories, productProviders } = useGlobalStore()
   const [note, setNote] = useState(false)
 
+  // ** UseEffect
   useEffect(() => {
-    const fetchCategories = async () => {
-      const categories = await getProductCategories()
-      setCategories(categories)
-    }
-    const fetchProviders = async () => {
-      const providers = await getProductProviders()
-      setProviders(providers)
-    }
-    fetchCategories()
-    fetchProviders()
-  }, [categories, providers])
+    fetchProdCategories()
+    fetchProdProviders()
+  }, [])
 
-  // ** Destructuring product
-  const router = useRouter()
-
-  const handleSubmit = async event => {
-    event.preventDefault()
-    try {
-      const productRef = await newProduct(product)
-      console.log('Product added: ', productRef)
-      setOpen(false)
-    } catch (error) {
-      console.error('Error creating new product: ', error)
-    }
+  const handleSubmit = async () => {
+    await newProduct(product)
+    setOpen(false)
+    fetchProducts()
   }
 
   // ** Handlers
@@ -87,7 +56,6 @@ export const ProductForm = ({ open, setOpen }) => {
   const handleCostChange = value => setProduct({ ...product, cost: value })
   const handleStockChange = value => setProduct({ ...product, stock: value })
   const handleDescriptionChange = value => setProduct({ ...product, description: value })
-
 
   return (
     <Card sx={{ minWidth: 450, maxWidth: 450 }}>
@@ -128,13 +96,13 @@ export const ProductForm = ({ open, setOpen }) => {
                 sx={{ width: '80%' }}
                 value={product.category}
                 onChange={e => setProduct({ ...product, category: e.target.value })}
-                >
-                {categories.map(category => (
+              >
+                {productCategories.map(category => (
                   <MenuItem key={category.id} value={category.id}>
                     {category.name}
                   </MenuItem>
                 ))}
-                </Select>
+              </Select>
               <AddCircleIcon
                 onClick={() => setNewCategory(true)}
                 fontSize='medium'
@@ -144,27 +112,31 @@ export const ProductForm = ({ open, setOpen }) => {
               <CategoryFormDialog setProduct={setProduct} open={newCategory} setOpen={setNewCategory} />
             </Grid>
             <Grid sx={{ alignItems: 'center' }} container item>
-            <Typography sx={styles.label}>Seleccione un Proveedor:</Typography>
+              <Typography sx={styles.label}>Seleccione un Proveedor:</Typography>
 
-                <Select
+              <Select
                 size='large'
                 sx={{ width: '80%' }}
                 value={product.provider || ''}
                 onChange={e => setProduct({ ...product, provider: e.target.value })}
-                >
-                {providers.map(provider => (
+              >
+                {productProviders.map(provider => (
                   <MenuItem key={provider.id} value={provider.id}>
                     {provider.name}
                   </MenuItem>
                 ))}
-                </Select>
+              </Select>
               <AddCircleIcon
                 onClick={() => setNewProvider(true)}
                 fontSize='medium'
                 color='primary'
                 sx={{ cursor: 'pointer', marginLeft: 2 }}
               />
-              <ProvFormDialog setProduct={setProduct} setProviders={setProviders} open={newProvider} setOpen={setNewProvider} />
+              <ProvFormDialog
+                setProduct={setProduct}
+                open={newProvider}
+                setOpen={setNewProvider}
+              />
             </Grid>
             <Grid sx={{ marginTop: 4, alignItems: 'center' }} item container>
               <TextField
@@ -209,7 +181,13 @@ export const ProductForm = ({ open, setOpen }) => {
                   <Close onClick={() => setNote(false)} />
                 </>
               ) : (
-                <Button onClick={() => setNote(true)} sx={{ marginTop: 2, alignSelf:'center' }} variant='contained' size='small' color='secondary'>
+                <Button
+                  onClick={() => setNote(true)}
+                  sx={{ marginTop: 2, alignSelf: 'center' }}
+                  variant='contained'
+                  size='small'
+                  color='secondary'
+                >
                   Agregar Nota al Producto
                 </Button>
               )}
@@ -218,7 +196,7 @@ export const ProductForm = ({ open, setOpen }) => {
               <Button
                 sx={{ marginRight: 2 }}
                 onClick={handleSubmit}
-                type='submit'
+                type='button'
                 variant='contained'
                 size='large'
                 startIcon={<AddCircleIcon />}
@@ -231,7 +209,7 @@ export const ProductForm = ({ open, setOpen }) => {
                 color='secondary'
                 variant='outlined'
                 size='large'
-                startIcon={<ArrowBack/>}
+                startIcon={<ArrowBack />}
               >
                 Cancelar
               </Button>
@@ -245,6 +223,6 @@ export const ProductForm = ({ open, setOpen }) => {
 
 const styles = {
   label: {
-    fontSize: 14,
-  },
+    fontSize: 14
+  }
 }

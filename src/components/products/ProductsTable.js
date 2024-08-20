@@ -28,6 +28,7 @@ import { ProductDetail } from './ProductDetail'
 // ** Hooks
 import { getProducts } from 'src/hooks/products/getProducts'
 import { deleteProduct } from 'src/hooks/products/deleteProduct'
+import { useGlobalStore } from 'src/contexts/useGlobalStore'
 
 const columns = [
   { id: 'name', label: 'Nombre del Producto', minWidth: 170 },
@@ -39,11 +40,12 @@ const columns = [
 ]
 export const ProductsTable = () => {
   // ** States
-  const [products, setProducts] = useState([])
-  const { product, setProduct } = useSelectedProduct()
   const [page, setPage] = useState(0)
-  const { searchText } = useSearchStore()
   const [rowsPerPage, setRowsPerPage] = useState(10)
+  // ** Global States
+  const { searchText } = useSearchStore()
+  const { product, setProduct } = useSelectedProduct()
+  const { products, fetchProducts, setProducts } = useGlobalStore()
   //Modes
   const [editMode, setEditMode] = useState(false)
   const [viewMode, setViewMode] = useState(false)
@@ -80,12 +82,8 @@ export const ProductsTable = () => {
 
   // ** UseEffect
   useEffect(() => {
-    const fetchProducts = async () => {
-      const products = await getProducts()
-      setProducts(products)
-    }
     fetchProducts()
-  }, [])
+  }, [fetchProducts])
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>

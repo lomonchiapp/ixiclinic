@@ -31,6 +31,7 @@ import { getServiceCategories } from 'src/hooks/services/categories/getServiceCa
 export const ServiceDetail = ({ open, setOpen }) => {
   // ** Global State
   const { service, setService } = useSelectedService()
+  const {fetchServices, serviceCategories } = useGlobalStore()
   // ** Categories
   const [categories, setCategories] = useState([])
 
@@ -55,16 +56,8 @@ export const ServiceDetail = ({ open, setOpen }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const categories = await getServiceCategories();
-        setCategories(categories);
-      } catch (error) {
-        console.error('Error fetching categories: ', error);
-      }
-    };
-    fetchCategories();
-  }, []);
+    fetchServices()
+  }, [fetchServices]);
 
   const handleFieldChange = (field, value) => {
     setEditableFields(prevState => ({ ...prevState, [field]: value }));
@@ -95,10 +88,21 @@ export const ServiceDetail = ({ open, setOpen }) => {
       cost: false,
       duration: false
     });
+    setOpen(false)
+    fetchServices()
   };
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const fieldLabels = {
+    name: 'Nombre',
+    category: 'Categoría',
+    description: 'Descripción',
+    price: 'Precio',
+    cost: 'Costo',
+    duration: 'Duración'
   };
 
 
@@ -110,46 +114,46 @@ export const ServiceDetail = ({ open, setOpen }) => {
       <CardContent>
         <Grid container spacing={2}>
           {Object.keys(editableFields).map(field => (
-            <Grid key={field} sx={styles.div} item>
-              <Typography sx={styles.label}>{field.charAt(0).toUpperCase() + field.slice(1)}</Typography>
-              {toggle[field] ? (
-                field === 'category' ? (
-                  <Select
-                    autoFocus
-                    value={editableFields.category}
-                    onChange={e => handleFieldChange('category', e.target.value)}
-                    onBlur={() => handleBlur('category', editableFields.category)}
-                    size='small'
-                    sx={styles.textField}
-                  >
-                    {categories.map(category => (
-                      <MenuItem key={category.id} value={category.name}>
-                        {category.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                ) : (
-                  <TextField
-                    autoFocus
-                    value={editableFields[field]}
-                    onChange={e => handleFieldChange(field, e.target.value)}
-                    onBlur={() => handleBlur(field, editableFields[field])}
-                    size='small'
-                    sx={styles.textField}
-                  />
-                )
-              ) : (
-                <Typography onClick={() => handleToggle(field)} sx={styles.value}>
-                  {editableFields[field]}
-                </Typography>
-              )}
-            </Grid>
+           <Grid key={field} sx={styles.div} item>
+           <Typography sx={styles.label}>{fieldLabels[field]}</Typography>
+           {toggle[field] ? (
+             field === 'category' ? (
+               <Select
+                 autoFocus
+                 value={editableFields.category.id || ''}
+                 onChange={e => {
+                   const selectedCategory = categories.find(cat => cat.id === e.target.value);
+                   handleFieldChange('category', selectedCategory);
+                 }}
+                 onBlur={() => handleBlur('category', editableFields.category)}
+                 size='small'
+                 sx={styles.textField}
+               >
+                 {serviceCategories.map(category => (
+                   <MenuItem key={category.id} value={category.id}>
+                     {category.name}
+                   </MenuItem>
+                 ))}
+               </Select>
+             ) : (
+               <TextField
+                 autoFocus
+                 value={editableFields[field]}
+                 onChange={e => handleFieldChange(field, e.target.value)}
+                 onBlur={() => handleBlur(field, editableFields[field])}
+                 size='small'
+                 sx={styles.textField}
+               />
+             )
+           ) : (
+             <Typography onClick={() => handleToggle(field)} sx={styles.value}>
+               {field === 'category' ? editableFields.category.name : editableFields[field]}
+             </Typography>
+           )}
+         </Grid>
           ))}
         </Grid>
-        <Button startIcon={<CheckOutlinedIcon />} sx={{ marginRight: 2 }} variant='contained' onClick={handleSave}>
-          Guardar
-        </Button>
-        <Button startIcon={<Close />} variant='outlined' onClick={handleClose}>
+        <Button startIcon={<CheckOutlinedIcon />} variant='contained' onClick={handleSave}>
           Salir
         </Button>
       </CardContent>

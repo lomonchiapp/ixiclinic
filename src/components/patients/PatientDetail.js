@@ -17,14 +17,17 @@ import {
 } from '@mui/material'
 import { database } from 'src/firebase'
 import { doc, updateDoc, getDoc, getDocs, collection } from 'firebase/firestore'
+// ** Global State
 import { useSelectedPatient } from 'src/contexts/useSelectedPatient'
+import { useGlobalStore } from 'src/contexts/useGlobalStore'
 import Close from 'mdi-material-ui/Close'
 import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined'
-import { getServiceCategories } from 'src/hooks/services/categories/getServiceCategories'
 import { getSkinTypes } from 'src/hooks/patients/getSkinTypes'
 
 export const PatientDetail = ({ open, setOpen }) => {
+  // ** Global State
   const { patient, setPatient } = useSelectedPatient()
+  const { fetchPatients } = useGlobalStore()
   const [skinTypes, setSkinTypes] = useState([])
   const [editableFields, setEditableFields] = useState({
     firstName: patient?.firstName || '',
@@ -54,7 +57,6 @@ export const PatientDetail = ({ open, setOpen }) => {
     address: false,
     dateOfBirth: false
   })
-  const router = useRouter()
 
   const fetchSkinTypes = async () => {
     const skins = await getSkinTypes()
@@ -79,6 +81,7 @@ export const PatientDetail = ({ open, setOpen }) => {
       try {
         await updateDoc(doc(database, 'patients', patient.id), { [field]: newValue })
         setPatient(prevPatient => ({ ...prevPatient, [field]: newValue }))
+        fetchPatients()
       } catch (error) {
         console.error('Error updating document: ', error)
       }
@@ -101,13 +104,8 @@ export const PatientDetail = ({ open, setOpen }) => {
       address: false,
       dateOfBirth: false
     })
+    setOpen(false)
 
-    try {
-      const updatedPatientDoc = await getDoc(doc(database, 'patients', patient.id))
-      setPatient(updatedPatientDoc.data())
-    } catch (error) {
-      console.error('Error fetching updated patient: ', error)
-    }
   }
 
   const handleClose = () => {
@@ -157,7 +155,6 @@ export const PatientDetail = ({ open, setOpen }) => {
                     value={editableFields.skinType}
                     onChange={e => handleFieldChange('skinType', e.target.value)}
                     onBlur={() => handleBlur('skinType', editableFields.skinType)}
-                    fullWidth
                   >
                     {skinTypes.map(skin => (
                       <MenuItem key={skin.id} value={skin.id}>
@@ -185,7 +182,7 @@ export const PatientDetail = ({ open, setOpen }) => {
           ))}
         </Grid>
         <Button startIcon={<CheckOutlinedIcon />} sx={{ marginRight: 2 }} variant='contained' onClick={handleSave}>
-          Save
+          Salir
         </Button>
       </CardContent>
     </Card>
