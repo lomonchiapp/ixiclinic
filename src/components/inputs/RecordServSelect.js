@@ -8,10 +8,14 @@ import Autocomplete from '@mui/material/Autocomplete'
 
 // ** GLOBAL STATE
 import { useRecordState } from '../../contexts/recordState'
+import { useGlobalStore } from 'src/contexts/useGlobalStore'
+import { useSelectedService } from 'src/contexts/useSelectedService'
 
-
-export function ServiceBox({ service, services}) {
+export function RecordServSelect() {
   const { servList, setServList } = useRecordState()
+  const { service } = useSelectedService()
+  const { services } = useGlobalStore()
+
   const [inputValue, setInputValue] = useState('')
 
   const addServiceToList = (service) => {
@@ -37,7 +41,7 @@ export function ServiceBox({ service, services}) {
           }}
           value={services.find(serv => serv.id === service) || null} //prov is provider
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          renderInput={params => <TextField {...params} label='Elija los Servicios'/>}
+          renderInput={params => <TextField {...params} label='Agregue un servicio aquí...'/>}
           sx={{ minWidth: 345 }}
           size='small'
           onChange={(event, newValue) => {

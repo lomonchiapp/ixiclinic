@@ -1,32 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { Box, FormControl, TextField } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
-import { useRecordState } from 'src/contexts/recordState';
+// Global State
+import { useRecordState } from 'src/contexts/recordState'
+import { useGlobalStore } from 'src/contexts/useGlobalStore';
+
+// Custom Hooks
 import { getPatients } from 'src/hooks/patients/getPatients';
 
 export function PatientsSelect({ setPatient }) {
-  const { setSelectedPatient, selectedPatient } = useRecordState();
-  const [patients, setPatients] = useState([]);
-
-  useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const patientsData = await getPatients();
-        setPatients(patientsData);
-      } catch (error) {
-        console.error('Error fetching patients:', error);
-      }
-    };
-    fetchPatients();
-  }, [patients]); // Add an empty dependency array to avoid unnecessary re-fetching
+  const { setSelectedPatient, selectedPatient } = useRecordState()
+  const [inputValue, setInputValue] = useState('')
+  const { patients } = useGlobalStore()
 
   const handleChange = (event, newValue) => {
     setSelectedPatient(newValue);
-    if (setPatient) {
-      setPatient(newValue);
-    }
   };
 
+  const handleInputChange = (event, newInputValue) => {
+    setInputValue(newInputValue);
+  };
   return (
     <Box>
       <FormControl fullWidth>
@@ -34,13 +27,14 @@ export function PatientsSelect({ setPatient }) {
           id="patient-autocomplete"
           options={patients}
           value={selectedPatient || null} // Ensure value is controlled
+          inputValue={inputValue}
           getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
           onChange={handleChange}
+          onInputChange={handleInputChange}
           renderInput={(params) => <TextField {...params} label="Seleccione un Paciente" />}
           sx={{ minWidth: 250 }}
         />
       </FormControl>
-      {selectedPatient?.firstName && <p>Selected Patient: {selectedPatient.firstName}</p>}
     </Box>
   );
 }

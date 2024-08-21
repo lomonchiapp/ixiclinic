@@ -16,9 +16,7 @@ import {
 } from '@mui/material'
 
 // ** MUI ICONS
-import AddIcon from '@mui/icons-material/Add'
-import RemoveIcon from '@mui/icons-material/Remove'
-import Close from 'mdi-material-ui/Close'
+import Delete from '@mui/icons-material/Delete'
 
 // ** Firebase Imports
 import { database } from 'src/firebase'
@@ -26,81 +24,63 @@ import { collection, getDocs, addDoc, doc, deleteDoc } from 'firebase/firestore'
 
 // ** Custom Components
 import { VariationForm } from './VariationForm'
-import Delete from '@mui/icons-material/Delete'
+import { EmptySelection } from './EmptySelection'
+import {EmptyVariations} from './EmptyVariations'
 
-export function VariationsList({ serviceSelected }) {
+// ** Hooks
+import { deleteVariation } from 'src/hooks/services/variations/deleteVariation'
+
+// ** Global States
+import { useSelectedService } from 'src/contexts/useSelectedService'
+import { useGlobalStore } from 'src/contexts/useGlobalStore'
+
+export function VariationsTable() {
   // ** Local State
-  const [variations, setVariations] = useState([])
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [deletingId, setDeletingId] = useState(null)
+  const { serviceVariations, setServiceVariations, fetchServVariations } = useGlobalStore()
+  // ** Global State
+  const { service } = useSelectedService()
   // ** Input States
 
   // ** Handlers
 
-  const fetchVariations = async () => {
-    const variationsCollection = collection(database, 'service_variations')
-    const variationsSnapshot = await getDocs(variationsCollection)
-    const variationsList = variationsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-    setVariations(variationsList)
+
+  const handleDelete = (id) => {
+    deleteVariation(id)
+    setServiceVariations(serviceVariations.filter(variation => variation.id !== id))
   }
-
-  const handleDelete = async id => {
-    setIsDeleting(true)
-    setDeletingId(id)
-    await deleteDoc(doc(database, 'service_variations', id))
-    // Update the variations list
-    setVariations(variations.filter(variation => variation.id !== id))
-
-    setIsDeleting(false)
-    setDeletingId(null)
-    fetchVariations()
-  }
-
   useEffect(() => {
-    fetchVariations()
-  }, [])
+    fetchServVariations()
+  }, [fetchServVariations])
 
   return (
-    <Grid sx={styles.list}>
-      {serviceSelected && (
-        <Box>
-          <Typography sx={styles.header}>Variaciones de {serviceSelected.name}</Typography>
-          <VariationForm serviceSelected={serviceSelected} setVariations={setVariations} />
-        </Box>
-      )}
-
-      {serviceSelected ? (
+    <Box>
+    <Box> <Typography sx={styles.header}>Variaciones de {service.name}</Typography></Box>
         <Table sx={styles.table}>
-          <Typography sx={styles.header}>Variaciones de {serviceSelected.name}</Typography>
           <TableHead>
             <TableRow>
               <TableCell>Nombre</TableCell>
-              <TableCell>Atributos</TableCell>
               <TableCell>Precio</TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {variations
-              .filter(variation => variation.service.id === serviceSelected.id)
+            {serviceVariations
+              .filter(variation => variation.service.id === service.id)
               .map(
                 variation => (
                   console.log(variation),
                   (
                     <TableRow key={variation.id}>
                       <TableCell>{variation.name}</TableCell>
-                      <TableCell>{variation.attributes}</TableCell>
                       <TableCell>${variation.price}</TableCell>
                       <TableCell>
-                        {deletingId === variation.id ? (
-                          <Typography sx={styles.qtyIcons}>Deleting...</Typography>
-                        ) : (
+                        
                           <Delete
                             onClick={() => handleDelete(variation.id)}
                             sx={styles.qtyIcons}
                             aria-label={`Delete ${variation.id}`}
                           />
-                        )}
+
                       </TableCell>
                     </TableRow>
                   )
@@ -108,24 +88,7 @@ export function VariationsList({ serviceSelected }) {
               )}
           </TableBody>
         </Table>
-      ) : (
-        <Grid
-          sx={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-            height: 200,
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-        >
-          <Typography>No hay variaciones para este servicio</Typography>
-          <Button onClick={() => setNewVariation(true)} startIcon={<AddIcon />}>
-            Agregue la primera Variación
-          </Button>
-        </Grid>
-      )}
-    </Grid>
+        </Box>
   )
 }
 

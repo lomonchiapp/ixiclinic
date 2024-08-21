@@ -1,38 +1,32 @@
 import React, { useState, useEffect } from 'react'
 import { FormControl, Grid, TextField, Box, InputLabel, Typography, Checkbox } from '@mui/material'
-import { ServiceBox } from '../../inputs/ServiceBox'
+import { RecordServSelect } from '../../inputs/RecordServSelect'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import { AddServiceDrawer } from '../../services/AddServiceDrawer'
 import { ServList } from '../ServList'
 import { database } from 'src/firebase'
 import { collection, getDocs } from 'firebase/firestore'
+// Global State
 import { useRecordState } from 'src/contexts/recordState'
+import { useGlobalStore } from 'src/contexts/useGlobalStore'
 
-export function ServicesTab({ services, setServices, newService, setNewService }) {
+export function ServicesTab({ newService, setNewService }) {
   const { servList, setServList, servTotal, variationsTotal , servVariations = [], setServVariations } = useRecordState()
-  const [variations, setVariations] = useState([])
+  const { serviceVariations, setServiceVariations, fetchServVariations } = useGlobalStore()
   const [variationDetails, setVariationDetails] = useState({})
   const [checkboxStates, setCheckboxStates] = useState({})
   const [hidden, setHidden] = useState(true)
   // ** PUNTO DE PARTIDA **
   useEffect(() => {
     // Fetch variations when component mounts
-    const getVariations = async () => {
-      const variationsCollection = collection(database, 'service_variations');
-      const variationsSnapshot = await getDocs(variationsCollection);
-      const variationsList = variationsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setVariations(variationsList);
-
+    fetchServVariations()
       // Initialize checkbox states based on servVariations
       const initialCheckboxStates = {};
-      variationsList.forEach(variation => {
+      serviceVariations.forEach(variation => {
         initialCheckboxStates[variation.id] = servVariations.some(v => v.id === variation.id);
       });
       setCheckboxStates(initialCheckboxStates);
-    };
-
-    getVariations();
-  }, [servVariations]);
+  }, [fetchServVariations]);
 
   const handleCheckboxChange = (variation) => {
     const newCheckboxStates = {
@@ -67,13 +61,13 @@ export function ServicesTab({ services, setServices, newService, setNewService }
   return (
     <Grid sx={styles.tabContainer} container>
       <Grid item sx={styles.selectContainer} container>
-        <ServiceBox setServices={setServices} services={services} />
+        <RecordServSelect />
         <AddServiceDrawer open={newService} setOpen={setNewService} />
         <AddCircleIcon color='primary' sx={{ cursor: 'pointer' }} onClick={() => setNewService(true)} />
       </Grid>
 
       <Grid container sx={{ display: 'flex', flexDirection: 'row' }}>
-        <Grid item xs={12} sm={12} md={6} lg={5} xl={5}>
+        <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
           <Box sx={styles.listContainer}>
             <ServList variationDetails={variationDetails} />
             <Box sx={styles.totalContainer}>
@@ -95,7 +89,7 @@ export function ServicesTab({ services, setServices, newService, setNewService }
         </Grid>
         <Grid item xs={7} sx={styles.attrContainer}>
   {servList.map((serv) => {
-    const serviceVariations = variations.filter(variation => variation.service.id === serv.id);
+    const filteredVariations = serviceVariations.filter(variation => variation.service.id === serv.id);
     if (serviceVariations.length === 0) {
       return null;
     }
@@ -104,9 +98,10 @@ export function ServicesTab({ services, setServices, newService, setNewService }
         <Grid sx={styles.variationHeader}>
           <InputLabel sx={styles.attributeLabel}>Variaciones de {serv.name}</InputLabel>
         </Grid>
-        {serviceVariations.map((variation) => (
-          <Grid container key={variation.id}>
-            <FormControl sx={{ display: 'flex', flexDirection: 'row', marginBottom: 5, alignItems: 'center' }}>
+        {filteredVariations.map((variation) => (
+          
+          <Grid sx={styles.variationBox} container key={variation.id}>
+            <FormControl sx={styles.variation}>
               <Checkbox
                 checked={checkboxStates[variation.id] || false}
                 onChange={() => handleCheckboxChange(variation)}
@@ -122,6 +117,11 @@ export function ServicesTab({ services, setServices, newService, setNewService }
                 sx={{ marginRight: 3 }}
                 disabled={!checkboxStates[variation.id]}
               />
+              <Box sx={styles.variationPriceBox}>
+                <Typography sx={styles.variationPrice}>
+                  +${variation.price}
+                </Typography>
+              </Box>
             </FormControl>
           </Grid>
         ))}
@@ -136,7 +136,7 @@ export function ServicesTab({ services, setServices, newService, setNewService }
 
 const styles = {
   tabContainer: {
-    paddingTop: 10
+    paddingTop: 5
   },
   totalLabel: {
     fontSize: 14,
@@ -146,6 +146,25 @@ const styles = {
   subTotalLabel: {
     fontSize: 12,
     marginRight: 2
+  },
+  variationPrice: {
+    fontSize:10,
+  },
+  variation:{
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    mb:2,
+  },
+  variationPriceBox:{
+    border: '1px solid #00A99D',
+    p:1,
+    backgroundColor: '#D0F9F6',
+    borderRadius:'5px',
+  },
+  variationBox:{
+    diplay:'flex',
+    flexDirection:'column'
   },
   total: {
     fontSize: 14,

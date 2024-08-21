@@ -23,6 +23,7 @@ import { useSelectedService } from 'src/contexts/useSelectedService'
 import { useSearchStore } from 'src/hooks/globalStates/useSearchStore'
 import { useGlobalStore } from 'src/contexts/useGlobalStore'
 // Hook
+import { deleteService } from 'src/hooks/services/deleteService'
 
 // ** Custom Components
 import { EditServiceDrawer } from './EditServiceDrawer'
@@ -35,7 +36,7 @@ const columns = [
   { id: 'name', label: 'Nombre del Servicio', minWidth: 170 },
   { id: 'category', label: 'Categoría', minWidth: 170, align: 'right' },
   { id: 'price', label: 'Precio', minWidth: 170, align: 'right' },
-  { id: 'variations', label: 'Variaciones', minWidth: 170, align: 'right' },
+  { id: 'duration', label: 'Duraciones', minWidth: 170, align: 'right' },
   { id: 'actions', label: 'Acciones', minWidth: 170, align: 'right' }
 ]
 
@@ -47,7 +48,7 @@ export const ServicesTable = () => {
   //Global States
   const { searchText } = useSearchStore()
   const { service, setService } = useSelectedService()
-  const { fetchServices, services } = useGlobalStore()
+  const { fetchServices, services, setServices } = useGlobalStore()
 
   //Modes
   const [editMode, setEditMode] = useState(false)
@@ -81,7 +82,7 @@ export const ServicesTable = () => {
 
   const handleDelete = id => {
     deleteService(id)
-    setService(services.filter(service => service.id !== id))
+    setServices(services.filter(service => service.id !== id))
   }
 
   useEffect(() => {
@@ -111,8 +112,7 @@ export const ServicesTable = () => {
                 <TableCell align='right'>{service.category?.name}</TableCell>
                 <TableCell align='right'>{service.price}</TableCell>
 
-                <TableCell align='right'>{service.stock}</TableCell>
-                <TableCell align='right'>{service.cost}</TableCell>
+                <TableCell align='right'>{service.duration}</TableCell>
                 <TableCell
                   align='right'
                   sx={{

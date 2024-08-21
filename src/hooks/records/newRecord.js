@@ -9,7 +9,7 @@ export const newRecord = async (record) => {
       await setDoc(newDocRef, { ...record, id: recId }); // Set the document with the ID included
       console.log('Document written with ID: ', recId);
       toast.success('Expediente creado exitosamente.');
-      return { ...product, id: prodId }; // Return the new category with the ID
+      return { ...record, id: recId }; // Return the new category with the ID
     } catch (error) {
       console.error("Error adding document: ", error);
       toast.error('Error al crear el expediente.');

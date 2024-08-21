@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { Grid, TextField, Typography, FormControl, Box, Select, MenuItem } from '@mui/material'
-import { ServicesBox } from '../../inputs/ServiceBox'
-import AddCircleIcon from '@mui/icons-material/AddCircle'
 import { useRecordState } from 'src/contexts/recordState'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'

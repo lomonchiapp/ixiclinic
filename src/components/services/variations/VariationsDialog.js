@@ -21,12 +21,15 @@ import Typography from '@mui/material/Typography'
 
 // ** Custom Components
 import { ServiceVariationsBox } from 'src/components/inputs/ServiceVariationsBox'
-import { VariationsList } from './VariationsList'
+import { Variations } from './Variations'
+
+// ** Global State
+import { useGlobalStore } from 'src/contexts/useGlobalStore'
+import { useSelectedService } from 'src/contexts/useSelectedService'
 
 export function VariationsDialog({ open, setOpen }) {
 
   const [tab, setTab] = useState('1')
-  const [serviceSelected, setServiceSelected] = useState(null)
   const [toggleInfo, setToggleInfo] = useState(false)
   const handleClose = () => {
     setOpen(false)
@@ -64,13 +67,10 @@ export function VariationsDialog({ open, setOpen }) {
             </Box>
             <TabPanel value='1'>
               <Grid>
-                <ServiceVariationsBox
-                serviceSelected={serviceSelected}
-                setServiceSelected={setServiceSelected}
-                />
+                <ServiceVariationsBox/>
               </Grid>
               <Grid>
-                <VariationsList serviceSelected={serviceSelected} />
+                <Variations />
               </Grid>
             </TabPanel>
             <TabPanel value='2'>

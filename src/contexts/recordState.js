@@ -8,7 +8,6 @@ const initialState = {
   prodTotal:0,
   servTotal:0,
   variationsTotal:0,
-  total: 0,
   procedure:'',
   notes:'',
   servVariations:[],

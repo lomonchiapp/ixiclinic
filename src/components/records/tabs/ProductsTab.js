@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Box, Grid, Typography } from '@mui/material'
-import { ProductBox } from '../../inputs/ProductBox'
+import { RecordProdSelect } from '../../inputs/RecordProdSelect'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import { AddProductDrawer } from '../../products/AddProductDrawer'
 import { ProdList } from '../ProdList'
@@ -10,13 +10,13 @@ export function ProductsTab({ product, products, setProducts, newProduct, setNew
   const { prodTotal } = useRecordState()
 
   return (
-    <Grid sx={{ alignItems: 'center', marginBottom: 10 }}>
+    <Grid sx={styles.tabContainer}>
       <Box sx={styles.selectContainer}>
-        <ProductBox product={product} products={products} />
+        <RecordProdSelect />
         <AddProductDrawer open={newProduct} setOpen={setNewProduct} />
         <AddCircleIcon color='primary' sx={{ cursor: 'pointer' }} onClick={() => setNewProduct(true)} />
       </Box>
-      <Box maxWidth={'50%'}>
+      <Grid item xs={12} md={8} lg={6} xl={6}>
         <ProdList />
         <Box sx={styles.totalContainer}>
               <Box sx={styles.subTotalContainer}>
@@ -33,11 +33,14 @@ export function ProductsTab({ product, products, setProducts, newProduct, setNew
               </Box>
               
             </Box>
-      </Box>
+      </Grid>
     </Grid>
   )
 }
 const styles = {
+  tabContainer: {
+    paddingTop:5
+  },
   selectContainer: {
     display: 'flex',
     flexDirection: 'row',

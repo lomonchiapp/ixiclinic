@@ -24,13 +24,12 @@ import { doc, updateDoc, getDocs, collection } from 'firebase/firestore'
 import Close from 'mdi-material-ui/Close'
 import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
 import { useSelectedProduct } from 'src/contexts/useSelectedProduct'
+import { useGlobalStore } from 'src/contexts/useGlobalStore'
 
 export const ProductDetail = ({ open, setOpen }) => {
   // ** Global State
   const { product, setProduct } = useSelectedProduct()
-  // ** Categories and Providers
-  const [categories, setCategories] = useState([])
-  const [providers, setProviders] = useState([])
+  const { fetchProdCategories, fetchProdProviders, productProviders, productCategories, fetchProducts } = useGlobalStore()
 
   // ** Editable Fields and Toggle States
   const [editableFields, setEditableFields] = useState({
@@ -56,79 +55,29 @@ export const ProductDetail = ({ open, setOpen }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(database, 'product_categories'));
-        const categories = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setCategories(categories);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    };
-  
-    const fetchProviders = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(database, 'product_providers'));
-        const providers = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setProviders(providers);
-      } catch (error) {
-        console.error('Error fetching providers:', error);
-      }
-    };
-  
-    fetchCategories();
-    fetchProviders();
-  }, []);
+    fetchProdCategories()
+    fetchProdProviders()
+  }, [])
   
   const handleFieldChange = (field, value) => {
     setEditableFields(prevState => ({ ...prevState, [field]: value }));
   };
-  
+
   const handleToggle = field => {
     setToggle(prevState => ({ ...prevState, [field]: !prevState[field] }));
   };
-  
-  const handleCategoryChange = async categoryId => {
-    const selectedCategory = categories.find(category => category.id === categoryId);
-    if (!selectedCategory) {
-      console.error('Selected category not found');
-      return;
-    }
-    setEditableFields(prevState => ({ ...prevState, category: selectedCategory }));
-    try {
-      await updateDoc(doc(database, 'products', product.id), { category: selectedCategory });
-      setProduct(prevProduct => ({ ...prevProduct, category: selectedCategory }));
-    } catch (error) {
-      console.error('Error updating category:', error);
-    }
-  };
-  
-  const handleProviderChange = async providerId => {
-    const selectedProvider = providers.find(provider => provider.id === providerId);
-    if (!selectedProvider) {
-      console.error('Selected provider not found');
-      return;
-    }
-    setEditableFields(prevState => ({ ...prevState, provider: selectedProvider }));
-    try {
-      await updateDoc(doc(database, 'products', product.id), { provider: selectedProvider });
-      setProduct(prevProduct => ({ ...prevProduct, provider: selectedProvider }));
-    } catch (error) {
-      console.error('Error updating provider:', error);
-    }
-  };
 
-  const handleCancelChanges = () => {
-    setEditableFields({
-      name: product.name,
-      category: product.category,
-      provider: product.provider,
-      stock: product.stock,
-      price: product.price,
-      cost: product.cost,
-      description: product.description
-    });
-  }
+  const handleBlur = async (field, newValue) => {
+    handleToggle(field);
+    if (product[field] !== newValue) {
+      try {
+        await updateDoc(doc(database, 'products', product.id), { [field]: newValue });
+        setService(prevProduct => ({ ...prevProduct, [field]: newValue }));
+      } catch (error) {
+        console.error('Error updating document: ', error);
+      }
+    }
+  };
 
   const handleSave = () => {
     setToggle({
@@ -140,6 +89,12 @@ export const ProductDetail = ({ open, setOpen }) => {
       cost: false,
       description: false
     });
+    setOpen(false)
+    fetchProducts()
+  }
+
+  const handleClose = () => {
+    setOpen(false);
   }
 
   const fieldLabels = {
@@ -158,7 +113,7 @@ export const ProductDetail = ({ open, setOpen }) => {
     <CardHeader title={editableFields.name} />
     <Divider />
     <CardContent>
-      <Close onClick={() => setOpen(false)} sx={styles.closeIcon} />
+      <Close onClick={handleClose} sx={styles.closeIcon} />
       <Divider />
       <Grid sx={styles.formContainer} container spacing={2}>
         {Object.keys(editableFields).map(field => (
@@ -167,12 +122,14 @@ export const ProductDetail = ({ open, setOpen }) => {
             {toggle[field] ? (
               field === 'category' ? (
                 <Select
-                  value={editableFields.category.id}
-                  onChange={e => handleCategoryChange(e.target.value)}
-                  onBlur={() => handleToggle(field)}
-                  fullWidth
+                  value={editableFields.category.id || ''}
+                  onChange={e => {
+                    const categorySelected = productCategories.find(category => category.id === e.target.value)
+                    handleFieldChange('category', categorySelected)
+                  }}
+                  onBlur={() => handleBlur('category', editableFields.category)}
                 >
-                  {categories.map(category => (
+                  {productCategories.map(category => (
                     <MenuItem key={category.id} value={category.id}>
                       {category.name}
                     </MenuItem>
@@ -181,11 +138,14 @@ export const ProductDetail = ({ open, setOpen }) => {
               ) : field === 'provider' ? (
                 <Select
                   value={editableFields.provider.id}
-                  onChange={e => handleProviderChange(e.target.value)}
-                  onBlur={() => handleToggle(field)}
+                  onChange={e => {
+                    const providerSelected = productProviders.find(provider => provider.id === e.target.value)
+                    handleFieldChange('provider', providerSelected)
+                  }}
+                  onBlur={() => handleBlur('provider', editableFields.provider)}
                   fullWidth
                 >
-                  {providers.map(provider => (
+                  {productProviders.map(provider => (
                     <MenuItem key={provider.id} value={provider.id}>
                       {provider.name}
                     </MenuItem>
@@ -196,7 +156,7 @@ export const ProductDetail = ({ open, setOpen }) => {
                   autoFocus
                   value={editableFields[field]}
                   onChange={e => handleFieldChange(field, e.target.value)}
-                  onBlur={() => handleToggle(field)}
+                  onBlur={() => handleBlur(field, editableFields[field])}
                   size='small'
                   sx={styles.textField}
                   label={fieldLabels[field]}
@@ -211,7 +171,7 @@ export const ProductDetail = ({ open, setOpen }) => {
         ))}
       </Grid>
       <Button startIcon={<CheckOutlinedIcon />} sx={{ marginRight: 2 }} variant='contained' onClick={() => handleSave()}>
-        Guardar
+        Salir
       </Button>
     </CardContent>
   </Card>

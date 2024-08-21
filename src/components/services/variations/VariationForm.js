@@ -1,71 +1,59 @@
-import { Grid, Typography, FormControl, TextField } from '@mui/material'
+import { Grid, Typography, FormControl, TextField, Box } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import Close from '@mui/icons-material/Close'
 import { useState } from 'react'
 
 import { database } from 'src/firebase'
 import { collection, addDoc, getDocs, query, where } from 'firebase/firestore'
+// Global States
+import { useSelectedService } from 'src/contexts/useSelectedService'
+import { useGlobalStore } from 'src/contexts/useGlobalStore'
+// Hooks
+import {createVariation} from 'src/hooks/services/variations/createVariation'
+export const VariationForm = () => {  // Global States
+  // Global States
+  const { service, setService } = useSelectedService() 
+  const { fetchServVariations, serviceVariations, setServiceVariations } = useGlobalStore()
 
-export const VariationForm = ({
-  serviceSelected,
-  setVariations
-}) => {
+  // Local States
   const [newVariation, setNewVariation] = useState(false)
-  const [variationName, setVariationName] = useState('')
-  const [variationPrice, setVariationPrice] = useState('')
-  const fetchVariations = async () => {
-    try {
-      const variationsCollection = collection(database, 'service_variations')
-      const variationsSnapshot = await getDocs(variationsCollection)
-      const variationsList = variationsSnapshot.docs.map(doc => doc.data())
-      setVariations(variationsList)
-    } catch (error) {
-      console.error('Error fetching variations:', error)
-    }
-  }
-  const handleAddVariation = async () => {
-    const variationsCollection = collection(database, 'service_variations');
-    // Query to check if a variation with the same name already exists
-    const querySnapshot = await getDocs(query(variationsCollection, where("name", "==", variationName)));
-    if (!querySnapshot.empty) {
-      // Handle the case where the variation name is not unique
-      alert("A variation with this name already exists. Please choose a different name.");
-      return;
-    }
+  const [variation, setVariation] = useState({
+    service: service,
+    name: '',
+    price: '',
+    CreatedAt: new Date(),
+  })
 
-    const newVariation = {
-      service: serviceSelected,
-      name: variationName,
-      price: variationPrice
-    };
-    await addDoc(variationsCollection, newVariation);
-    setVariationName('');
-    setVariationPrice('');
-    setNewVariation(false);
-    fetchVariations();
-  };
+  const handleAddVariation = async () => {
+    await createVariation(variation)
+    setVariation({ ...variation, name: '', price: '' });
+    fetchServVariations()
+  }
+
   return (
     <Grid sx={styles.variationForm}>
-      <Typography sx={{ fontWeight: 'bold', color: '#00A99D', fontSize: 15 }}>Agregar Variación</Typography>
+      <Box>
+      <Typography sx={{color: '#00A99D', fontSize: 12 }}>Agregar Variación</Typography>
+      </Box>
       <FormControl>
         <TextField
-          value={variationName}
-          onChange={e => setVariationName(e.target.value)}
-          sx={{ marginRight: 2, width: 200 }}
+          value={variation.name}
+          size= 'small'
+          onChange={e => setVariation({ ...variation, name: e.target.value })}
           label='Nombre'
         />
       </FormControl>
 
       <FormControl>
         <TextField
-          value={variationPrice}
-          onChange={e => setVariationPrice(e.target.value)}
-          sx={{ marginLeft: 15, width: '60%' }}
+          value={variation.price}
+          size='small'
+          sx={{maxWidth: 100}}
+          onChange={e => setVariation({ ...variation, price: e.target.value })}
           label='Precio'
         />
       </FormControl>
       <AddIcon onClick={() => handleAddVariation()} sx={styles.addIcon} />
-      <Close onClick={() => setNewVariation(false)} sx={styles.closeIcon} />
     </Grid>
   )
 }
@@ -74,9 +62,12 @@ const styles = {
   variationForm: {
     justifyContent: 'center',
     position: 'relative',
+    display:'flex',
+    flexGrow:1,
+    flexDirection:'row',
     alignItems: 'center',
-    padding: 5,
-    marginTop: 5,
+    justifyContent: 'space-evenly',
+    padding: 2,
     border: '1px solid #00A99D',
     display: 'flex',
     boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.1)'
@@ -87,11 +78,4 @@ const styles = {
     color: 'white',
     backgroundColor: '#00A99D'
   },
-  closeIcon: {
-    position: 'absolute',
-    right: 5,
-    top: 5,
-    cursor: 'pointer',
-    fontSize: 18
-  }
 }

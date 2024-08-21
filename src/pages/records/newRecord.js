@@ -4,13 +4,38 @@ import { useState } from 'react'
 import { RecordForm } from '../../components/records/RecordForm'
 import { PatientDialog } from 'src/components/patients/PatientDialog'
 import { useRecordState } from 'src/contexts/recordState'
+import { newRecord } from 'src/hooks/records/newRecord'
 
 const NewRecord = () => {
   const [newPatient, setNewPatient] = useState(false)
   const [newService, setNewService] = useState(false)
   const [newProduct, setNewProduct] = useState(false)
-  const { total } = useRecordState()
+  const { selectedPatient, prodTotal, servTotal, variationsTotal,reset, total,
+    procedure, notes, servVariations, problems, servList, prodList, prices, qties
+  } = useRecordState()
 
+  const handleCreateRecord = () => {
+
+
+    const recordData = {
+      patient: selectedPatient,
+      //   doctor: doctor,
+      prodTotal: prodTotal,
+      servTotal: servTotal,
+      variationsTotal: variationsTotal,
+      procedure: procedure,
+      notes: notes,
+      servVariations: servVariations,
+      problems: problems,
+      servList: servList,
+      prodList: prodList,
+      prices: prices,
+      qties: qties,
+      total: total(),
+    }
+    newRecord(recordData)
+    reset()
+  }
   return (
     <Grid sx={styles.page} container>
       <RecordForm
@@ -25,10 +50,10 @@ const NewRecord = () => {
       <Grid sx={styles.fixedBar}>
         <Box sx={styles.totalContainer}>
           <Typography sx={styles.totalLabel}>Total:</Typography>
-          <Typography sx={styles.total}>${total().toFixed(2)}</Typography>
+          <Typography sx={styles.total}>${ total().toFixed(2) }</Typography>
         </Box>
         <Box>
-          <Box component={'button'} sx={styles.createButton}>
+          <Box onClick={() => handleCreateRecord()} component={'button'} sx={styles.createButton}>
             Crear Registro
           </Box>
           <Box component={'button'} sx={styles.cancelButton}>
@@ -80,15 +105,15 @@ const styles = {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#00A99D',
-    mr:3
+    mr: 3
   },
   totalContainer: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    pt:1,
+    pt: 1,
     marginBottom: 1
-  },
+  }
 }
 
 export default NewRecord

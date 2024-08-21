@@ -19,9 +19,11 @@ import { ViewDialog } from '../ViewDialog'
 import { CategoryForm } from './CategoryForm'
 //* new Service */
 import { newService } from 'src/hooks/services/newService'
+import { useGlobalStore } from 'src/contexts/useGlobalStore'
 
 export const ServiceForm = ({ open, setOpen }) => {
   const [newCategory, setNewCategory] = useState(false)
+  const { fetchServices } = useGlobalStore()
   const [service, setService] = useState({
     name: '',
     category: '',
@@ -39,6 +41,7 @@ export const ServiceForm = ({ open, setOpen }) => {
     try {
       const serviceRef = await newService(service)
       console.log('Service added: ', serviceRef)
+      fetchServices()
       setOpen(false)
     } catch (error) {
       console.error('Error creating new service: ', error)

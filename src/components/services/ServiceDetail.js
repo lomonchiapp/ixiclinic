@@ -21,6 +21,7 @@ import { database } from 'src/firebase'
 import { doc, getDoc, query, onSnapshot, updateDoc, getDocs, collection } from 'firebase/firestore'
 // ** Global State
 import { useSelectedService } from 'src/contexts/useSelectedService'
+import { useGlobalStore } from 'src/contexts/useGlobalStore'
 // ** Icons
 import Close from 'mdi-material-ui/Close'
 import CheckBoxIcon from '@mui/icons-material/CheckBox'
@@ -31,7 +32,7 @@ import { getServiceCategories } from 'src/hooks/services/categories/getServiceCa
 export const ServiceDetail = ({ open, setOpen }) => {
   // ** Global State
   const { service, setService } = useSelectedService()
-  const {fetchServices, serviceCategories } = useGlobalStore()
+  const { fetchServices, serviceCategories } = useGlobalStore()
   // ** Categories
   const [categories, setCategories] = useState([])
 
@@ -41,7 +42,6 @@ export const ServiceDetail = ({ open, setOpen }) => {
     category: service.category,
     description: service.description,
     price: service.price,
-    cost: service.cost,
     duration: service.duration
   });
 
@@ -50,14 +50,9 @@ export const ServiceDetail = ({ open, setOpen }) => {
     category: false,
     description: false,
     price: false,
-    cost: false,
     duration: false
   });
   const router = useRouter();
-
-  useEffect(() => {
-    fetchServices()
-  }, [fetchServices]);
 
   const handleFieldChange = (field, value) => {
     setEditableFields(prevState => ({ ...prevState, [field]: value }));

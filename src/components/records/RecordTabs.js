@@ -11,16 +11,7 @@ import { ClinicTab } from './tabs/ClinicTab'
 import { ProductsTab } from './tabs/ProductsTab'
 import { ServicesTab } from './tabs/ServicesTab'
 
-export function RecordTabs({
-  services,
-  setServices,
-  newService,
-  setNewService,
-  newProduct,
-  setNewProduct,
-  products,
-  setProducts
-}) {
+export function RecordTabs() {
   const [tab, setTab] = React.useState('1')
 
   const handleChange = (event, newValue) => {
@@ -38,20 +29,10 @@ export function RecordTabs({
           </TabList>
         </Box>
         <TabPanel value='1'>
-          <ServicesTab
-            services={services}
-            setServices={setServices}
-            newService={newService}
-            setNewService={setNewService}
-          />
+          <ServicesTab />
         </TabPanel>
         <TabPanel value='2'>
-          <ProductsTab
-            products={products}
-            setProducts={setProducts}
-            newProduct={newProduct}
-            setNewProduct={setNewProduct}
-          />
+          <ProductsTab />
         </TabPanel>
         <TabPanel value='3'>
           <ClinicTab />

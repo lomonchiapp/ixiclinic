@@ -2,10 +2,10 @@ import { deleteDoc, doc } from 'firebase/firestore';
 import { database } from 'src/firebase';
 import { toast } from 'react-toastify';
 
-export const deleteService = async (id) => {
+export const deleteVariation = async (id) => {
   try {
-    await deleteDoc(doc(database, 'services', id));
-    toast.success('Servicio eliminado con éxito');
+    await deleteDoc(doc(database, 'service_variations', id));
+    toast.success('Variación eliminado con éxito');
   } catch (e) {
     console.error('hubo bobo:', e);
     toast.error('Hubo un error al eliminar el paciente');

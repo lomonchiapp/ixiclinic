@@ -12,10 +12,13 @@ import { collection, getDocs } from 'firebase/firestore'
 
 // ** GLOBAL STATE
 import { useRecordState } from '../../contexts/recordState'
+import { useGlobalStore } from 'src/contexts/useGlobalStore'
+import { useSelectedProduct } from 'src/contexts/useSelectedProduct'
 
-
-export function ProductBox({ product, products}) {
+export function RecordProdSelect() {
   const { prodList, setProdList, qties, setQties } = useRecordState()
+  const { products } = useGlobalStore()
+  const {product} = useSelectedProduct()
   const [inputValue, setInputValue] = useState('')
 
   const addProductToList = (product) => {
@@ -45,7 +48,7 @@ export function ProductBox({ product, products}) {
           }}
           value={products.find(prod => prod.id === product) || null} //prov is provider
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          renderInput={params => <TextField {...params} label='Elija los Productos'/>}
+          renderInput={params => <TextField {...params} label='Agregue un producto desde aqui ...'/>}
           sx={{ minWidth: 345 }}
           size='small'
           onChange={(event, newValue) => {

@@ -17,7 +17,6 @@ const ServicesPage = () => {
   const [openDrawer, setOpenDrawer] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
   
-  
   return (
     <>
     <Grid container spacing={3}>

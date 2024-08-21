@@ -97,7 +97,7 @@ export function ServList({ variationDetails }) {
 
 const styles = {
   list: {
-    minHeight: 100,
+    minHeight: 150,
     position: 'relative',
     overflow: 'auto',
     pt: 5,

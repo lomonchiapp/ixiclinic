@@ -1,43 +1,32 @@
-import React, { useState } from 'react'
-import { useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react';
+import { Box, FormControl, TextField } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
+import { useSelectedService } from 'src/contexts/useSelectedService';
+import { useGlobalStore } from 'src/contexts/useGlobalStore';
+import { set } from 'nprogress';
 
-// ** MATERIAL UI IMPORTS
-import { useTheme } from '@mui/material/styles'
-import Box from '@mui/material/Box'
-import FormControl from '@mui/material/FormControl'
-import TextField from '@mui/material/TextField'
-import Autocomplete from '@mui/material/Autocomplete'
-
-// ** FIREBASE IMPORTS
-import {database} from 'src/firebase'
-import { collection, getDocs } from 'firebase/firestore'
-
-
-
-export function ServiceVariationsBox({ serviceSelected, setServiceSelected }) {
-  const [services, setServices] = useState([])
-  const [inputValue, setInputValue] = useState('')
+export const ServiceVariationsBox = () => {
+  const { services, fetchServices } = useGlobalStore();
+  const { service, setService } = useSelectedService();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchServices = async () => {
-      const servicesCollection = collection(database, 'services')
-      const servicesSnapshot = await getDocs(servicesCollection)
-      const servicesList = servicesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-      setServices(servicesList)
-    }
-    fetchServices()
-  }
-  ,[])
+    const loadServices = async () => {
+      try {
+        await fetchServices();
+        setService(null)
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadServices();
+  }, [fetchServices]);
 
-  const handleInputChange = (event, newInputValue) => {
-    setInputValue(newInputValue);
+
+  const handleChange = (event, newValue) => {
+    setService(newValue);
   };
 
-const handleChange = (event, newValue) => {
-  setServiceSelected(newValue); // Update to store the selected ID or null
-  if (newValue) setInputValue(newValue.name); // Assuming `newValue` has a `name` property
-  else setInputValue(''); // Reset input value if no selection
-};
   return (
     <Box>
       <FormControl fullWidth>
@@ -45,16 +34,20 @@ const handleChange = (event, newValue) => {
           id='service-autocomplete'
           options={services}
           getOptionLabel={option => `${option.name}`}
-          inputValue={inputValue}
-          onInputChange={handleInputChange}
           onChange={handleChange}
-          value={services.find(serv => serv.id === serviceSelected) || null}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          renderInput={params => <TextField {...params} label='Elija un servicio'/>}
+          inputValue={service?.name || ''}
+          value={service || null}
+          renderInput={params => (
+            <TextField
+              {...params}
+              label='Elija un servicio'
+              disabled={loading}
+            />
+          )}
           sx={{ minWidth: 345 }}
           size='small'
         />
       </FormControl>
     </Box>
-  )
-}
+  );
+};
